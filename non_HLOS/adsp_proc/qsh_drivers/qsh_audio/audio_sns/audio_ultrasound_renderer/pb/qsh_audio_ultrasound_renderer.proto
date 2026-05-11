@@ -1,0 +1,215 @@
+// @file qsh_audio_ultrasound_renderer.proto
+//
+// Sensor provides access to Ultrasound Tone Renderer.
+//
+// Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+// All rights reserved.
+// Confidential and Proprietary - Qualcomm Technologies, Inc. 
+
+
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_std.proto";
+
+// Attribute requirements:
+// SNS_STD_SENSOR_ATTRID_TYPE: "audio_ultrasound_renderer"
+// SNS_STD_SENSOR_ATTRID_AVAILABLE: true if connected to ADSP
+// SNS_STD_SENSOR_ATTRID_API: "qsh_audio_ultrasound_renderer.proto"
+// SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_ON_CHANGE
+
+// In following situation an error event,
+// SNS_STD_MSGID_SNS_STD_ERROR_EVENT, with payload sns_std_error_event, having
+// appropriate error code, will be raised:
+// 1. if remote process is not able the handle the request.
+// 2. if there is any IPC error.
+
+// Sensor for Ultrasound Tone Rendering
+// This Sensor will create a connection to the remote process where Audio Rendering services will run.
+// EP / End point / HWEP here in this context will only refer to speaker / rendering device.
+// Audio Rendering services will be set up in remote process upon receipt of the first client request.
+// Audio Rendering services will start once the audio sample to be played is configured.
+// Subsequent requests will be sent to the same service.
+// Rendering is based on the speaker media format qsh_audio_ultrasound_renderer_ep_mf_cfg - if the speaker media format is 
+// changed then the us tone renderer will notify client
+// Audio Rendering can be stopped when a stop config is received
+// The connection will be closed after the client requests are removed.
+// Handling Stream Requests:
+// 1. Usecase is setup using config QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_CFG which 
+//    contains the rendering speaker media format. Once the usecase is set up an event will be raised to
+//    the client QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_DONE_EVENT after which other
+//    config requests can be sent. This is a one time setup per session.
+// 2. This sensor is an on change sensor and ignores any batch/flush information and requests. Events are 
+//    only sent upon media format changes in speaker only.
+// 3. The tone to be rendeered can be sent using QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_TONE_CFG
+// 4. Stop / start playback can be facilitated with QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_ENABLE
+
+// Suggested Call flow:
+// 1. Set up the rendering usecase with speaker config info:
+//        msg_id = QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_CFG
+//        qsh_audio_ultrasound_renderer_setup_cfg:qsh_audio_ultrasound_renderer_ep_mf_cfg:sampling_rate = 48000
+//        qsh_audio_ultrasound_renderer_setup_cfg:qsh_audio_ultrasound_renderer_ep_mf_cfg:bit_width = 16
+//        qsh_audio_ultrasound_renderer_setup_cfg:qsh_audio_ultrasound_renderer_ep_mf_cfg:num_channels = 2
+//        qsh_audio_ultrasound_renderer_setup_cfg:qsh_audio_ultrasound_renderer_ep_mf_cfg:ch_type = 
+//                                      [ULTRASOUND_RENDERER_CHANNEL_L,ULTRASOUND_RENDERER_CHANNEL_R]
+// 2. Receive  QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_DONE_EVENT
+// 3. Set up tone to be played:
+//        msg_id = QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_TONE_CFG
+//        qsh_audio_ultrasound_renderer_us_tone_config:tone_renderer_period_us = 100000
+//        qsh_audio_ultrasound_renderer_us_tone_config:num_repetitions = 1
+//        qsh_audio_ultrasound_renderer_us_tone_config:phase_offset_us = 0
+//        qsh_audio_ultrasound_renderer_us_tone_config:gain_cfg = 8192 (16 bit with Q13)
+//        qsh_audio_ultrasound_renderer_us_tone_config:tone_cfg_interleaved = QSH_AUDIO_ULTRASOUND_RENDERER_INTERLEAVING_DEINTERLEAVED
+//        qsh_audio_ultrasound_renderer_us_tone_config:tone_cfg_num_ch = 2
+//        qsh_audio_ultrasound_renderer_us_tone_config:sample_bytes here onwards
+// 4. Stop / start playback:
+//        msg_id = QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_ENABLE
+//        qsh_audio_ultrasound_renderer_enable: enable = 1 (Start)
+//        qsh_audio_ultrasound_renderer_enable: enable = 0 (Stop)
+// 5. If there is change in speaker media format config - one event will notify the upcoming change start and
+//    another indicates done based on status. The speaker media format accompanying the done event is valid.
+
+enum qsh_audio_ultrasound_renderer_msgid
+{
+	option (nanopb_enumopt).long_names = false;
+
+	//msg id to send configuration for usecase setup
+	QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_CFG = 512;
+	
+	//msg id that contains input audio sample to be played
+	QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_TONE_CFG = 513;
+
+	//msg id to start / stop upd playback
+	QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_ENABLE = 514;
+
+	//event id sent when speaker position changes
+	QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_EP_MEDIA_FORMAT_EVENT = 768;
+	
+	//event id sent when playback path setup is done - other configs can follow this
+	QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_DONE_EVENT = 769;
+}
+
+// pcm_channel_t spf channels will be mapped to 
+// ultrasound_renderer_channel_type
+// which sensor client understands (L or R) - any
+// other type will be mapped to invalid
+enum ultrasound_renderer_channel_type
+{
+   option (nanopb_enumopt).long_names = false;
+
+   //invalid channel type
+   ULTRASOUND_RENDERER_CHANNEL_INVALID = 0;
+
+   //Front left channel mapped to top
+   ULTRASOUND_RENDERER_CHANNEL_L = 1;                  
+
+   //Front right channel mapped to bottom
+   ULTRASOUND_RENDERER_CHANNEL_R = 2;
+}
+
+//media format config structure
+message qsh_audio_ultrasound_renderer_ep_mf_cfg
+{
+	//sampling rate in samples per second at speaker
+	//this must be specified or an error is returned
+	optional uint32 sampling_rate = 1 [default = 48000];
+	
+	//bitwidth of the sample 
+	//currently only 16 bit is supported
+	optional uint32 bit_width = 2 [default = 16];
+	
+	//number of channels at speaker
+	//this must be specified or an error is returned
+	optional uint32 num_channels = 3 [default = 2];
+	
+	//channel type for each channel in num_channels
+	//num_channels number of elements
+	//Recommended values are: ultrasound_renderer_channel_type
+	//Enc/Dec as pb uint32 arr
+	repeated ultrasound_renderer_channel_type channel_type = 4;
+}
+
+
+//request payload (QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_SETUP_CFG)
+message qsh_audio_ultrasound_renderer_setup_cfg
+{
+	//media format configuration for speaker ep.
+	//this must be specified or an error is returned
+	optional qsh_audio_ultrasound_renderer_ep_mf_cfg hwep_media_format = 1;
+}
+
+enum qsh_audio_ultrasound_renderer_tone_cfg_interleaving
+{
+	option (nanopb_enumopt).long_names = false;
+	QSH_AUDIO_ULTRASOUND_RENDERER_INTERLEAVING_INVALID = 0;
+	QSH_AUDIO_ULTRASOUND_RENDERER_INTERLEAVING_INTERLEAVED = 1;
+	QSH_AUDIO_ULTRASOUND_RENDERER_INTERLEAVING_DEINTERLEAVED = 2;
+}
+
+//request for payload (QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_TONE_CFG)
+message qsh_audio_ultrasound_renderer_tone_cfg
+{
+	//period to play audio sample in microseconds
+	//this must be specified or an error is returned
+	//eg for 50 ms is period and 2 ms is tone length
+	//tone is played for 2 ms then 48 ms silence : repeat
+	optional uint32 tone_renderer_period_us = 1 [default = 0];
+	
+	//number of times the tone will be repeated durung every tone_renderer_period_us
+	optional uint32 num_repetitions = 2 [default = 1];
+	
+	//phase offset for every extra channel 
+	//if phase offset is 10us then second channel tone will be
+	//at an offset of 10us third will be 20us so on
+	//if 0us then all will be played with zero offset
+	optional uint32 phase_offset_us = 3 [default = 0];
+
+	//gain that will be applied to the audio sample
+	//this is in Q13 (16 bits).
+	optional uint32 gain_cfg = 4 [default = 0x2000];
+
+	//ch_type from speaker media format will dictate the order of channels 
+	//if the data is interleaved
+	//indicates if data in buffer is interleaved / deinterleaved
+	//this must be specified compulsorily if more than 1 channels 
+	//are specified in below or an error is returned
+	optional qsh_audio_ultrasound_renderer_tone_cfg_interleaving tone_cfg_interleaved = 5 [default = QSH_AUDIO_ULTRASOUND_RENDERER_INTERLEAVING_INVALID];
+
+	//number of channels that data in the buffer corresponds to
+	//speaker cfg requested : tone renderer cfg : output tone
+	//this must be specified or an error is returned
+	//general pattern mapped using mic media format num channels and tone num channels
+	//1 speaker	 (L)   : X (L)  	  	   : L = X
+	//1 speaker	 (L)   : X (L) Y (R)  	   : L = X 
+	//2 speakers (L R) : X (L)             : L = X R = X @offset
+	//2 speakers (L R) : X (L) Y (R)  	   : L = X R = Y	
+	optional uint32 tone_cfg_num_ch = 6 [default = 1];
+
+	// payload in bytes assumed to be little endian
+	repeated bytes sample_bytes = 8;
+}
+
+
+//request payload (QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_ENABLE)
+message qsh_audio_ultrasound_renderer_enable
+{
+	//Start (enable = 1) / Stop (enable = 0) the UPD usecase
+	optional bool enable = 1 [default = false];
+}
+
+enum qsh_audio_ultrasound_renderer_ep_media_format_status
+{
+	option (nanopb_enumopt).long_names = false;
+	QSH_AUDIO_ULTRASOUND_RENDERER_MEDIA_FORMAT_STATUS_INVALID = 0;
+	QSH_AUDIO_ULTRASOUND_RENDERER_MEDIA_FORMAT_STATUS_CHANGE_STARTED = 1;
+	QSH_AUDIO_ULTRASOUND_RENDERER_MEDIA_FORMAT_STATUS_CHANGE_DONE = 2;
+}
+
+
+//event payload (QSH_AUDIO_ULTRASOUND_RENDERER_MSGID_QSH_AUDIO_ULTRASOUND_RENDERER_EP_MEDIA_FORMAT_EVENT)
+message qsh_audio_ultrasound_renderer_ep_media_format_event
+{
+	optional qsh_audio_ultrasound_renderer_ep_media_format_status status = 1 [default = QSH_AUDIO_ULTRASOUND_RENDERER_MEDIA_FORMAT_STATUS_INVALID];
+
+	//notification for update in speaker position sent to client sensor
+	optional qsh_audio_ultrasound_renderer_ep_mf_cfg new_media_format = 2;
+}

@@ -1,0 +1,33 @@
+# ------------------------------------------------------------------------------
+#  Copyright (c) Qualcomm Technologies, Inc.
+#  All rights reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+# ------------------------------------------------------------------------------
+
+# Convention:
+# For each entry under 'configs', the 'files' list must contain exactly two files:
+#   1. The first file should be a .conf file
+#   2. The second file should be a .cmake file
+# Both files are mandatory for proper build configuration
+
+configs:
+
+  - regex: ".*awm.lw_.*test.*"
+    files:
+      - prj_aspen_lpai_awm_lw_test.conf
+      - prezephyr_aspen_lpai_awm_lw_test.cmake
+
+  - regex: ".*awm.lw_.*prod.*"
+    files:
+      - prj_aspen_lpai_awm_lw_prod.conf
+      - prezephyr_aspen_lpai_awm_lw_prod.cmake
+
+  - regex: ".*awm.law_.*test.*"
+    files:
+      - prj_aspen_lpai_awm_law_test.conf
+      - prezephyr_aspen_lpai_awm_law_test.cmake
+
+  - regex: ".*awm.law_.*prod.*"
+    files:
+      - prj_aspen_lpai_awm_law_prod.conf
+      - prezephyr_aspen_lpai_awm_law_prod.cmake

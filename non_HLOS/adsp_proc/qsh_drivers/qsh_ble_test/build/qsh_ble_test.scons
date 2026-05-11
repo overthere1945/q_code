@@ -1,0 +1,77 @@
+#===============================================================================
+#
+# qsh ble test
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2021-2022 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Return()
+Import('env')
+import logging, os, inspect
+
+format_str = '%(filename)s(line %(lineno)s)\t%(levelname)s -- %(message)s'
+logging.basicConfig(level=logging.ERROR, format=format_str)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  #logs info and higher
+logger.setLevel(logging.DEBUG) #logs everything
+
+if not env.GetUsesFlag('USES_QURT'):
+  Return()
+
+qsh_ble_test_binary_lib = "Source"
+qsh_ble_test_clean_pack_list = []
+qsh_ble_test_island_enable = False
+
+QSH_BLE_TEST_DEFINES = []
+
+if 'SNS_ISLAND_INCLUDE_QSH_BLE' in env:
+  qsh_ble_test_island_enable = True
+  QSH_BLE_TEST_DEFINES.append('QSH_BLE_TEST_ISLAND_ENABLED')
+
+logger.debug("QSH_BLE_TEST_DEFINES = %s" % QSH_BLE_TEST_DEFINES)
+
+env.Append(CPPDEFINES = QSH_BLE_TEST_DEFINES)
+
+if 'SENSORS_ADD_SHARED_QSH_BLE_TEST' in env:
+  qsh_ble_test_binary_lib = "Shared"
+  qsh_ble_test_clean_pack_list = ['*.c','*.h','*.json']
+
+
+if 'SENSORS_ALGO_DEV_FLAG' in env:
+  qsh_ble_test_binary_lib = "Source"
+  qsh_ble_test_clean_pack_list = []
+
+pb_api = [
+  'sns_std_sensor',
+  'sns_std_type',
+  'sns_std',
+  'sns_timer',
+  'sns_registry'
+]
+
+island_segment = 'ssc'
+if 'USES_MULTIPLE_ISLAND' in env and 'USES_MEMSEG' in env:
+  valid_segments = env.GetMemorySegmentProps()
+  if 'qshtech' in valid_segments:
+    island_segment = 'qshtech'
+
+env.RequirePublicApi('QSH_PUBLIC_PB')
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               clean_pack_list = qsh_ble_test_clean_pack_list,
+               binary_lib = qsh_ble_test_binary_lib,
+               register_func_name = "qsh_ble_test_register",
+               add_island_files = qsh_ble_test_island_enable,
+               cflags = ['-Wno-unused-parameter'],
+               pb_apis = pb_api,
+               segment = island_segment,
+               diag_ssid = "MSG_SSID_SNS_SENSOR_INT")

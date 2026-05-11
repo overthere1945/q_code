@@ -1,0 +1,124 @@
+#===============================================================================
+#
+# Qualcomm sensor BLE driver
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2020-2022, 2023 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import logging, os, inspect
+
+format_str = '%(filename)s(line %(lineno)s)\t%(levelname)s -- %(message)s'
+logging.basicConfig(level=logging.ERROR, format=format_str)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  #logs info and higher
+logger.setLevel(logging.DEBUG) #logs everything
+
+if not env.GetUsesFlag('USES_QURT'):
+  Return()
+
+QSH_BLE_ME = inspect.getfile(inspect.currentframe())
+QSH_BLE_MY_ROOT = os.path.dirname(os.path.dirname(QSH_BLE_ME))
+
+qsh_ble_binary_lib = True
+qsh_ble_clean_pack_list = ['*.c','*.h','*.json','*.lst']
+qsh_ble_island_enable = False
+
+QSH_BLE_DEFINES = ['QSH_BLE_CHIP_' + env['CHIPSET'].upper()]
+
+if 'SNS_ISLAND_INCLUDE_QSH_BLE' in env:
+  qsh_ble_island_enable = True
+  QSH_BLE_DEFINES.append('QSH_BLE_ISLAND_ENABLED')
+
+logger.debug("IMAGE = %s" % env['IMAGE'])
+
+if (env['IMAGE'] not in ['slpi']):
+  QSH_BLE_DEFINES.append('QSH_BLE_VOTE_GDSC_ENABLED')
+
+logger.debug("QSH_BLE_DEFINES = %s" % QSH_BLE_DEFINES)
+
+env.Append(CPPDEFINES = QSH_BLE_DEFINES)
+
+if 'SENSORS_ADD_SHARED_QSH_BLE' in env:
+  qsh_ble_binary_lib = "Shared"
+  qsh_ble_clean_pack_list = ['*.c','*.h','*.json']
+
+  qsh_ble_exports_root = QSH_BLE_MY_ROOT + '/build'
+  # exported symbols used by QSH BLE Sensor because it is building as a shared lib.
+  env.DLExposeFile(qsh_ble_exports_root + '/dl_qsh_ble_symbols.lst')
+
+if 'SENSORS_ALGO_DEV_FLAG' in env:
+  qsh_ble_binary_lib = True
+
+pb_api = [
+  'sns_std_sensor',
+  'sns_std_type',
+  'sns_std',
+  'sns_registry'
+]
+
+#-------------------------------------------------------------------------------
+# Get the required Include directories
+#-------------------------------------------------------------------------------
+core_public_apis = [
+       'KERNEL',
+       'SERVICES',
+       'POWER',
+       'DAL',
+       'BUSES',
+       'DEBUGTOOLS',
+       'SYSTEMDRIVERS',
+       'DIAG',
+       'DEBUGTRACE',
+       'MPROC',
+]
+
+platform_public_apis = [
+       'PLATFORM_LIBS',
+       'MOD_TABLE',
+       'QAIC',
+       'STDDEF',
+       'REMOTE',
+       'HAPSDK',
+]
+
+env.RequirePublicApi(core_public_apis, area='core')
+env.RequirePublicApi(platform_public_apis, area='platform')
+
+qsh_ble_utils_api = [
+    "${SENSINGHUB_DRIVERS_ROOT}/qsh_ble/utils/inc",
+]
+if 'SNS_ISLAND_INCLUDE_QSH_BLE' in env:
+  env.PublishProtectedApi('QSH_BLE_UTILS_API', qsh_ble_utils_api)
+  env.RequireProtectedApi(['QSH_BLE_UTILS_API'])
+
+island_segment = 'ssc'
+if 'USES_MULTIPLE_ISLAND' in env and 'USES_MEMSEG' in env:
+  valid_segments = env.GetMemorySegmentProps()
+  if 'qshtech' in valid_segments:
+    island_segment = 'qshtech'
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               qsh_api = ['QSH_INCLUDES','SNS_INCLUDES'],
+               clean_pack_list = qsh_ble_clean_pack_list,
+               binary_lib = qsh_ble_binary_lib,
+               register_func_name = "qsh_ble_register",
+               add_island_files = qsh_ble_island_enable,
+               cflags = ['-Wno-unused-parameter'],
+               pb_apis = pb_api,
+               segment = island_segment,
+               diag_ssid = "MSG_SSID_SNS_SENSOR_INT")
+
+#-------------------------------------------------------------------------------
+# Scan subdirectories to find more /build folders
+#-------------------------------------------------------------------------------
+env.LoadSoftwareUnits()

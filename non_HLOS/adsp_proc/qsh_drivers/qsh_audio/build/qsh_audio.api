@@ -1,0 +1,46 @@
+#===============================================================================
+#
+# Audio events/data Hub
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All rights reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import os, inspect
+
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+
+env.Replace(MY_ROOT=MY_ROOT)
+
+env.PublishRestrictedApi('QSH_AUDIO_INCLUDES', [
+   "${MY_ROOT}/audio_api",
+   "${MY_ROOT}/utils/uqci/inc",
+   "${MY_ROOT}/utils/osa/inc",
+   "${MY_ROOT}/audio_sns/audio_context/api",
+   "${MY_ROOT}/audio_sns/audio_context/inc",
+   "${MY_ROOT}/audio_sns/audio_data/api",
+   "${MY_ROOT}/audio_sns/audio_data/inc",
+   "${MY_ROOT}/audio_sns/audio_event/inc",
+   "${MY_ROOT}/audio_sns/audio_test/inc",
+   "${MY_ROOT}/audio_sns/audio_upd_proxy/api",
+   "${MY_ROOT}/audio_sns/audio_upd_proxy/inc",
+   "${MY_ROOT}/audio_sns/audio_speaker_diarization/api",
+   "${MY_ROOT}/audio_sns/audio_speaker_diarization/inc",
+   "${MY_ROOT}/audio_sns/audio_ultrasound_renderer/api",
+   "${MY_ROOT}/audio_sns/audio_ultrasound_renderer/inc",
+   "${MY_ROOT}/audio_sns/audio_context/build/${BUILDPATH}/pb",
+   "${MY_ROOT}/audio_sns/audio_data/build/${BUILDPATH}/pb",
+   "${MY_ROOT}/audio_sns/audio_ultrasound_renderer/build/${BUILDPATH}/pb",
+   "${MY_ROOT}/audio_sns/audio_speaker_diarization/build/${BUILDPATH}/pb"
+])
+
+env.LoadAPIUnits()

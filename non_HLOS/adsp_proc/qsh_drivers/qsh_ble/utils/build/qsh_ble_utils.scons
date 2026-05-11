@@ -1,0 +1,62 @@
+#===============================================================================
+#
+# utilities
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2021 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import logging,os, inspect
+import platform
+import subprocess
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+
+env.Replace(MY_ROOT=MY_ROOT)
+qsh_ble_utils_internal_api = [
+  "${MY_ROOT}/inc/internal",
+  "${MY_ROOT}/inc/internal/${CHIPSET}"
+]
+
+env.PublishProtectedApi('QSH_BLE_UTILS_INTERNAL', qsh_ble_utils_internal_api)
+
+core_public_apis = [
+       'KERNEL',
+       'SERVICES',
+       'POWER',
+       'DAL',
+       'BUSES',
+       'DEBUGTOOLS',
+       'SYSTEMDRIVERS',
+       'DIAG',
+       'DEBUGTRACE',
+       'MPROC',
+]
+platform_public_apis = [
+       'PLATFORM_LIBS',
+       'MOD_TABLE',
+       'QAIC',
+       'STDDEF',
+       'REMOTE',
+       'HAPSDK',
+]
+env.RequirePublicApi(core_public_apis, area='core')
+env.RequirePublicApi(platform_public_apis, area='platform')
+if 'SNS_ISLAND_INCLUDE_QSH_BLE' in env:
+  include_qsh_ble_utils =['qsh_ble_utils_memory']
+  env.Append(SSC_INCLUDE_QSH_LIBS = include_qsh_ble_utils)
+  env.AddUsesFlags(['USE_QSH_BLE_ISLAND_UTILS'])
+
+#-------------------------------------------------------------------------------
+# Scan subdirectories to find more /build folders
+#-------------------------------------------------------------------------------
+env.LoadSoftwareUnits()
+

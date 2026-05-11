@@ -1,0 +1,133 @@
+#===============================================================================
+#
+# NanoPB encode/decode library
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#  $Id: //components/rel/qsh.api/1.0.2/nanopb/build/nanopb.scons#2 $
+#  $DateTime: 2025/11/20 21:25:49 $
+#  $Change: 68863607 $
+#
+#===============================================================================
+Import('env')
+import os, inspect
+
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+MY_NAME = os.path.basename(MY_ROOT)
+
+#-------------------------------------------------------------------------------
+# External dependencies
+#-------------------------------------------------------------------------------
+if 'SSC_TARGET_HEXAGON' in env['CPPDEFINES']:
+  CBSP_API = [
+    'DEBUGTOOLS', # Required for debug log messages
+    'KERNEL',     # Required for debug log messages
+    ]
+  env.RequirePublicApi(CBSP_API, area='core')
+env.RequirePublicApi(['SNS_API_INCLUDES'], area=env['SENSINGHUB_API'])
+
+#-------------------------------------------------------------------------------
+# Source Path
+#-------------------------------------------------------------------------------
+SRCPATH = os.path.join(MY_ROOT, 'src')
+if not os.path.isdir(SRCPATH):
+  if 'SSC_TARGET_X86' in env['CPPDEFINES']:
+    SRCPATH = os.path.join(MY_ROOT, 'x86')
+  elif 'SSC_TARGET_HEXAGON' in env['CPPDEFINES']:
+    SRCPATH = os.path.join(MY_ROOT, 'hexagon')
+
+env.VariantDir('${BUILDPATH}', MY_ROOT, duplicate=0)
+
+#-------------------------------------------------------------------------------
+# Source files
+#-------------------------------------------------------------------------------
+SRCFILES  =  env.FindFiles(['*.c'], SRCPATH)
+VARIANT_SRCFILES = [f.replace(MY_ROOT,'${BUILDPATH}') for f in SRCFILES]
+
+#-------------------------------------------------------------------------------
+# Protocol Buffer API files
+#-------------------------------------------------------------------------------
+PB_PATH = os.path.join(MY_ROOT, 'pb')
+if 'USES_SSC_PBGEN' in env:
+
+  proto_files = env.FindFiles(['*.proto'], PB_PATH)
+
+  # Force descriptor.proto to be compiled first.
+  # Note: Since nanopb.proto has a dependency on descriptor.proto, the
+  # descriptor proto should be compiled first.
+  sorted_proto_files  = sorted(proto_files, key=lambda x: ("descriptor.proto" not in x, x))
+
+  for proto_file in sorted_proto_files:
+    output = env.PBGen(str(proto_file))
+    VARIANT_SRCFILES += [output[1]]   # Just include the .c file
+    if str(output[0]).__contains__("descriptor.pb.h"):
+      descriptor_h = output[0]
+    if str(output[0]).__contains__("nanopb.pb.h"):
+      nanopb_h = output[0]
+
+  # Set explicit dependency on descriptor.pb.h from nanopb.pb.h
+  env.Depends(nanopb_h, descriptor_h)
+
+#-------------------------------------------------------------------------------
+# Add Libraries to Image
+#-------------------------------------------------------------------------------
+MY_LIB = os.path.join('${BUILDPATH}', MY_NAME)
+if 'SSC_TARGET_X86' in env['CPPDEFINES']:
+  lib = env.AddLibrary(['SENSINGHUB_SIM'], MY_LIB, VARIANT_SRCFILES)
+elif 'SENSORS_DD_DEV_FLAG' not in env:
+  lib = env.AddLibrary(env['QSH_API_BUILD_TAGS'], MY_LIB, VARIANT_SRCFILES)
+else:
+  lib = env.AddBinaryLibrary(env['QSH_API_BUILD_TAGS'], MY_LIB, VARIANT_SRCFILES)
+env.Depends(lib, VARIANT_SRCFILES)
+
+REMOVE_FILES = []
+if env.GetOption('cleanpack'):
+  REMOVE_FILES += env.FindFiles(['*.c'], os.path.join(MY_ROOT, 'src'))
+  REMOVE_FILES += env.FindFiles(['*.h', '*.txt'], os.path.join(MY_ROOT, 'inc'))
+  REMOVE_FILES += env.FindFiles(['*.pb.h'], os.path.join(MY_ROOT, 'build', "${BUILDPATH}", 'pb'))
+  REMOVE_FILES += env.FindFiles(['*'], os.path.join(MY_ROOT, 'generator'))
+  REMOVE_FILES += env.FindFiles(['*'], os.path.join(MY_ROOT, 'generator-win'))
+  REMOVE_FILES += env.FindFiles(['*.proto'], os.path.join(MY_ROOT, 'pb'))
+
+#-------------------------------------------------------------------------------
+#island mode
+#-------------------------------------------------------------------------------
+memory_segment = 'ssc'
+if 'USES_MULTIPLE_ISLAND' in env and 'USES_MEMSEG' in env:
+  valid_segments = env.GetMemorySegmentProps()
+  if env.IsKeyEnable('AVS_ADSP_USER'):
+    if(env['MSM_ID'] in ["aspen"]):
+      segment_value = 'audiosw'
+    else:
+      segment_value = 'va'
+  else:
+    segment_value = 'qsh'
+  if segment_value in valid_segments:
+    memory_segment = segment_value
+  else:
+    memory_segment = 'ssc'
+    
+if 'USES_AUDIO_IMG' in env and 'USES_DISABLE_QSH_AUDIOPD_ISLAND' in env:
+  ISLAND_ENABLED = False
+elif 'SNS_DISABLE_ISLAND' in env:
+  ISLAND_ENABLED = False
+else:
+  ISLAND_ENABLED = True
+    
+if ISLAND_ENABLED:
+  if 'USES_MEMSEG' in env:
+    env.TagLibraryForMemorySegment(env['QSH_API_BUILD_TAGS'], memory_segment, lib)
+
+#-------------------------------------------------------------------------------
+# Remove source files
+#-------------------------------------------------------------------------------
+
+env.CleanPack(env['QSH_API_BUILD_TAGS'], REMOVE_FILES, pack_exception=["USES_NO_SHIP_NANOPB"])

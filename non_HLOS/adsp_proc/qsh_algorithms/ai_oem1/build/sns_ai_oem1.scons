@@ -1,0 +1,71 @@
+#===============================================================================
+#
+# Algorithm : AI-OEM1
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+
+Import('env')
+import inspect
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+ai_oem1_island_enable = False
+ai_oem1_binary_lib = "Source"
+ai_oem1_clean_pack_list = []
+ssid = "MSG_SSID_SNS_SENSOR_EXT"
+
+cbsp_api = [
+  'DEBUGTOOLS',
+  'SERVICES',
+  'KERNEL',
+  'POWER',
+]
+
+pb_api = [
+  'sns_suid',
+  'sns_registry',
+  'sns_resampler',
+  'sns_std_sensor',
+  'sns_std_type',
+  'sns_std',
+  ]
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+
+if 'SNS_ISLAND_INCLUDE_AI_OEM1' in env:
+  ai_oem1_island_enable = True
+else:
+  ai_oem1_island_enable = False
+
+ai_oem1_flavor = ["algo/inc", "algo/src", "sensor/inc", "sensor/src"]
+
+env.RequirePublicApi('QSH_PUBLIC_PB', area = 'qsh_drivers')
+env.RequirePublicApi(['SNS_MATH_UTIL_INCLUDES'], area='qsh_platform')
+env.RequirePublicApi(['EAI'], area='eai')
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               flavor             = ai_oem1_flavor,
+               clean_pack_list    = ai_oem1_clean_pack_list,
+               register_func_name = "sns_ai_oem1_register",
+               binary_lib         = ai_oem1_binary_lib,
+               add_island_files   = ai_oem1_island_enable,
+               diag_ssid          = ssid,               
+               ssc_protected_api  = ['SNS_INTERNAL_INCLUDES'],
+               pb_apis            = pb_api,
+               core_public_api    = cbsp_api,
+               qsh_api            = ['QSH_INCLUDES'],
+               segment            = 'qshtech')
+

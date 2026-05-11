@@ -1,0 +1,82 @@
+#===============================================================================
+#
+# Audio events/data Hub
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All rights reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import os, inspect
+
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+
+env.Replace(MY_ROOT=MY_ROOT)
+
+if 'SSC_INCLUDE_QSH_LIBS' in env and ("qsh_audio_utils" not in env['SSC_INCLUDE_QSH_LIBS']):
+  REMOVE_FILES = env.FindFiles(['*'], MY_ROOT)
+  env.CleanPack(env['SSC_BUILD_TAGS'], REMOVE_FILES)
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+if 'SNS_ISLAND_INCLUDE_QSH_AUDIO' in env:
+  env.Append(CFLAGS = "-DQSH_AUDIO_USE_ISLAND_MEM")
+  env.Append(CFLAGS = "-DQSH_AUDIO_USE_UQSOCKET")
+  env.Append(CFLAGS = "-DQSH_AUDIO_IN_ISLAND")
+
+if (env.GetUsesFlag('USES_QSH_SENSORS') and
+    'SSC_INCLUDE_QSH_LIBS' in env and
+    "qsh_audio_data" in env['SSC_INCLUDE_QSH_LIBS'] and
+    'SSC_TARGET_HEXAGON' in env['CPPDEFINES'] and
+    'SSC_TARGET_HEXAGON_MDSP' not in env['CPPDEFINES']):
+  env.Append(CFLAGS = "-DQSH_AUDIO_DATA_SENSOR")
+  if ("qsh_audio_ultrasound_renderer" in env['SSC_INCLUDE_QSH_LIBS']):
+      env.Append(CFLAGS = "-DQSH_AUDIO_ULTRASOUND_RENDERER_SENSOR")
+  if ("qsh_audio_speaker_diarization" in env['SSC_INCLUDE_QSH_LIBS']):
+      env.Append(CFLAGS = "-DQSH_AUDIO_SPEAKER_DIARIZATION_SENSOR")
+
+
+if env.get('SIM_PLATFORM') in ['x86']:
+   env.Append(CFLAGS = "-Wno-unused-parameter -Wno-missing-field-initializers")
+   env.Append(CFLAGS = "-DQSH_AUDIO_QSOC_SIMULATOR")
+   env.Append(CFLAGS = "-DQSH_AUDIO_DATA_SENSOR")
+   env.Append(CFLAGS = "-DQSH_AUDIO_ULTRASOUND_RENDERER_SENSOR")
+#else:
+   #uncomment these two lines if using QSOC simulator for target
+#   env.Append(CFLAGS = "-Wno-unused-parameter -Wno-missing-field-initializers")
+#   env.Append(CFLAGS = "-DQSH_AUDIO_QSOC_SIMULATOR")
+
+CBSP_API = [
+  'DAL',
+  'DEBUGTOOLS',
+  'KERNEL',
+  'SERVICES',
+  'POWER',
+  'SYSTEMDRIVERS',
+  'MPROC'
+  ]
+
+platform_public_apis = [
+       'PLATFORM_LIBS',
+       'MOD_TABLE',
+       'QAIC',
+       'STDDEF',
+       'REMOTE',
+       'HAPSDK',
+]
+
+env.RequirePublicApi(platform_public_apis, area='platform')
+env.RequirePublicApi(CBSP_API, area='core')
+
+env.Append(CFLAGS = "-DQSH_AUDIO_ALLOW_SENSOR_FWK_PRINT")
+
+env.LoadSoftwareUnits()

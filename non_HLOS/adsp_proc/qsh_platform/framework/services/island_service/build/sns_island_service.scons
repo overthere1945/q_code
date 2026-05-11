@@ -1,0 +1,62 @@
+#===============================================================================
+#
+# Island Service
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#===============================================================================
+Import('env')
+import inspect
+
+pack_list = []
+island_service_flavor = []
+island_service_cleanpack = []
+packlist = []
+binlib = False
+
+island_enable = False
+
+if 'USES_MEMSEG' in env:
+  island_enable = True
+if 'SSC_TARGET_X86' in env['CPPDEFINES']:
+  if 'SNS_SIM_ISLAND_ENABLE' in env['CPPDEFINES']:
+    island_enable = True
+if 'SNS_DISABLE_ISLAND' in env['CPPDEFINES']:
+  island_enable = False
+
+if island_enable == True:
+  island_service_flavor = ['src']
+  if 'SNS_ISLAND_ENABLE_DEBUG' in env:
+    env.Append(CPPDEFINES = ['SNS_ISLAND_ENABLE_DEBUG'])
+else:
+  island_service_flavor = ['stub']  
+
+# Pack list specific wearables
+if 'SSC_TARGET_WEARABLES' in env['CPPDEFINES']:
+  pack_list.extend(['src', 'stub'])
+
+if 'SENSORS_DD_DEV_FLAG' not in env:
+  island_service_cleanpack= []
+  binlib=False
+else:
+  island_service_cleanpack=['*.c','*.h']
+  binlib=True
+
+if 'SENSORS_ALGO_DEV_FLAG' in env:
+  binlib = True
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+             flavor = island_service_flavor,
+             ssc_protected_api = ['SNS_FRAMEWORK','SNS_INTERNAL_INCLUDES'],
+             clean_pack_list = island_service_cleanpack,
+             pack_list = pack_list,
+             binary_lib=binlib,
+             segment = 'qsh',
+             island_sections = ['.text.sns', '.data.sns'])
+

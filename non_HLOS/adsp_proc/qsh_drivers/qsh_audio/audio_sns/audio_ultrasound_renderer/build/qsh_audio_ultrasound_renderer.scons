@@ -1,0 +1,62 @@
+#===============================================================================
+#
+# Audio Ultrasound Renderer Sensor
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2024 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import os, inspect
+
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+
+env.Replace(MY_ROOT=MY_ROOT)
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+qsh_audio_island_enable = False
+qsh_audio_binary_lib = True
+qsh_audio_clean_pack_list = []
+ssid = "MSG_SSID_SNS_SENSOR_INT"
+
+if 'SNS_ISLAND_INCLUDE_QSH_AUDIO' in env:
+  qsh_audio_island_enable = True
+
+env.RequireRestrictedApi(['QSH_AUDIO_INCLUDES'])
+ 
+pb_api = [
+  'sns_suid',
+  'sns_registry',
+  'sns_std_sensor',
+  'sns_std_type',
+  'sns_std',
+  ]
+
+island_segment = 'va'
+if 'USES_MULTIPLE_ISLAND' in env and 'USES_MEMSEG' in env:
+  valid_segments = env.GetMemorySegmentProps()
+  if 'qshtech' in valid_segments:
+    island_segment = 'qshtech'
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               register_func_name = "qsh_audio_ultrasound_renderer_register",
+               clean_pack_list = qsh_audio_clean_pack_list,
+               qsh_api = ['QSH_INCLUDES'],
+               binary_lib = qsh_audio_binary_lib,
+               add_island_files = qsh_audio_island_enable,
+               pb_apis = pb_api,
+               diag_ssid = ssid,
+               segment = island_segment)
+
+

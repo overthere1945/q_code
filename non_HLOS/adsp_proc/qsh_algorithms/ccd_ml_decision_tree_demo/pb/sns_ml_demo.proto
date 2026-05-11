@@ -1,0 +1,25 @@
+// @file sns_ml_demo.proto
+//
+// @brief Defines the API for the CCD ML Decision Tree Demo
+//
+// @copyright
+// Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.\n
+// All Rights Reserved.\n
+// Confidential and Proprietary - Qualcomm Technologies, Inc.\n
+//
+// @details Determine user activity states
+//
+// ## Attribute Requirements:
+// 1. SNS_STD_SENSOR_ATTRID_TYPE: "ml_demo"
+// 2. SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_ON_CHANGE
+//
+// ## Processing Stream Requests:
+// 1. SNS_STD_SENSOR_MSGID_SNS_STD_ON_CHANGE_CONFIG is used to enable
+// the sensor.
+//
+// ## Publishing Stream Events:
+// 1. SNS_ACTIVITY_RECOGNITION_MSGID_SNS_AR_EVENT is used to send state change updates.
+
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_activity_recognition.proto";

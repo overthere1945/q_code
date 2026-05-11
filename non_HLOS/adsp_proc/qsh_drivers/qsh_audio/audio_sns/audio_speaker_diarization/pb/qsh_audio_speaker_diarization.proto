@@ -1,0 +1,78 @@
+// @file qsh_audio_speaker_diarization.proto
+//
+// Defines the API for Speaker Diarization.
+//
+// Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+// All rights reserved.
+// Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_std.proto";
+
+// Attribute requirements:
+// SNS_STD_SENSOR_ATTRID_TYPE: "audio_speaker_diarization"
+// SNS_STD_SENSOR_ATTRID_AVAILABLE: true if connected to ADSP
+// SNS_STD_SENSOR_ATTRID_API: "qsh_audio_speaker_diarization.proto"
+// SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_ON_CHANGE
+
+// Suggested call flow
+// 1. Setup the audio use case by sending SNS_STD_SENSOR_MSGID_SNS_STD_ON_CHANGE_CONFIG.
+// 2. Start receiving the speaker diarization output.
+//        msg_id = QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_EVENT
+// 3. Disable the event detection processing in speaker diarization module to save power.
+//        msg_id = QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_ENABLE
+// 4. Enable the event detection processing in speaker diarization module when required.
+//        msg_id = QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_ENABLE
+// 5. Flush is not supported
+
+enum qsh_audio_speaker_diarization_msgid
+{
+  option (nanopb_enumopt).long_names = false;
+
+  // Message to ensure speaker diarization is setup in the Audio and events detections are started.
+  // SNS_STD_SENSOR_MSGID_SNS_STD_ON_CHANGE_CONFIG = 514;
+
+  // Message to disable or reenable the event detection within speaker diarization.
+  // Client may chose to enable event deteection only based on certain external events.
+  QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_ENABLE = 512;
+
+  // Event on reception of speaker data
+  QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_EVENT = 1024;
+}
+
+//payload (QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_ENABLE)
+message qsh_audio_speaker_diarization_enable
+{
+   //Start (enable = 1) / Stop (enable = 0)
+   optional bool enable = 1 [default = true];
+}
+
+message qsh_audio_speaker_diarization_speaker_info
+{
+   //speaker ID detected by the algorithm
+   required uint32 speaker_id = 1;
+
+   //Field indicating the least-significant 32 bits of the start timestamp for above speaker id.
+   required uint32 start_ts_lsw = 2;
+
+   //Field indicating the most-significant 32 bits of the start timestamp for above speaker id.
+   required uint32 start_ts_msw = 3;
+
+   //Field indicating the least-significant 32 bits of the end timestamp for above speaker id.
+   required uint32 end_ts_lsw = 4;
+
+   //Field indicating the most-significant 32 bits of the end timestamp for above speaker id.
+   required uint32 end_ts_msw = 5;
+}
+
+//payload (QSH_AUDIO_SPEAKER_DIARIZATION_MSGID_QSH_AUDIO_SPEAKER_DIARIZATION_EVENT)
+//this is an event to inform about the speaker diarization.
+message qsh_audio_speaker_diarization_event
+{
+  required uint32 overlap_detected = 1;
+  //Field indicating if overlap detected between multiple speakers.
+
+  repeated qsh_audio_speaker_diarization_speaker_info speaker_info = 2;
+  //Speaker info for each speaker detected by the speaker diarization module.
+}

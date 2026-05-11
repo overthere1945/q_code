@@ -1,0 +1,87 @@
+// @file qsh_ble_test.proto
+//
+// Defines the API for BLE Test Sensor.
+//
+// Copyright (c) 2021 Qualcomm Technologies, Inc.
+// All Rights Reserved.
+// Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_std.proto";
+import "sns_std_sensor.proto";
+
+/**
+ * BLE Test Sensor Attribute Requirements:
+ * SNS_STD_SENSOR_ATTRID_TYPE: "ble_test"
+ * SNS_STD_SENSOR_ATTRID_VERSION: 0x00010000
+ * SNS_STD_SENSOR_ATTRID_API: "qsh_ble_test.proto"
+ * SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_ON_CHANGE
+ */
+
+enum qsh_ble_test_msgid
+{
+  option (nanopb_enumopt).long_names = false;
+
+  // Uses payload message: qsh_ble_test_config
+  // Direction: From client to BLE_TEST sensor
+  // Purpose: Configures the sensor to start testing.
+  //          Client can remove the data stream to stop this testing.
+  // Expectation: No ACK if it succeeded.
+  //              An event QSH_BLE_TEST_MSGID_QSH_BLE_TEST_RESULT_EVENT will be
+  //              sent to sensor client if it failed.
+  QSH_BLE_TEST_MSGID_QSH_BLE_TEST_CONFIG = 601;
+
+  // Uses payload message: qsh_ble_test_get_result
+  // Direction: From client to BLE_TEST sensor
+  // Purpose: get the test result
+  // Expectation: An event QSH_BLE_TEST_MSGID_QSH_BLE_TEST_RESULT_EVENT will be
+  //              sent to sensor client.
+  QSH_BLE_TEST_MSGID_QSH_BLE_TEST_GET_RESULT = 602;
+
+  // Uses payload message: qsh_ble_test_result_event
+  // Direction: From BLE_TEST sensor to sensor client
+  // Purpose: To deliver test result event to sensor client.
+  //          This event will be sent to client automatically when any error
+  //          happened during this testing or when client actively fetches it
+  //          by using QSH_BLE_TEST_MSGID_QSH_BLE_TEST_GET_RESULT.
+  QSH_BLE_TEST_MSGID_QSH_BLE_TEST_RESULT_EVENT = 1034;
+}
+
+enum qsh_ble_test_request
+{
+  option (nanopb_enumopt).long_names = false;
+
+  // routing scan test
+  QSH_BLE_TEST_REQ_ROUTING_SCAN = 0x01;
+}
+
+message qsh_ble_test_config
+{
+  // Bitwise OR of qsh_ble_test_request, indicates which tests should be started.
+  required fixed32 requests = 1;
+}
+
+message qsh_ble_test_get_result
+{
+  // Bitwise OR of qsh_ble_test_request, indicates which tests' result should
+  // be fetched.
+  required fixed32 requests = 1;
+}
+
+message qsh_ble_test_routing_scan_result
+{
+  // testing was successful or failed.
+  required sns_std_error error = 1;
+  // the number of adv event received during this testing.
+  optional fixed32 num_of_adv_event_received = 2;
+  // the time spent in this testing, unit: second.
+  optional fixed32 time_spent_s = 3;
+}
+
+message qsh_ble_test_result_event
+{
+  // test result of routing scan.
+  optional qsh_ble_test_routing_scan_result routing_scan_result = 1;
+}
+

@@ -1,0 +1,173 @@
+#===============================================================================
+#
+# QSH Algorithms libraries
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries. 
+# All rights reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#===============================================================================
+Import('env')
+import logging, os, inspect
+format_str = '%(filename)s(line %(lineno)s)\t%(levelname)s -- %(message)s'
+logging.basicConfig(level=logging.ERROR, format=format_str)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  #logs info and higher
+#logger.setLevel(logging.DEBUG) #logs everything
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+logger.debug("ME = %s" % ME)
+logger.debug("MY_ROOT = %s" % MY_ROOT)
+env.Replace(QSH_ALGO_ROOT=MY_ROOT)
+
+#-------------------------------------------------------------------------------
+# Check if QSH Algorithms has to be built
+#-------------------------------------------------------------------------------
+qsh_algorithms_build_tags = [
+   # qsh_algorithms as the USER PD on ADSP processor
+   'SSC_ADSP_USER',
+
+   # SSC simulation
+   'SENSINGHUB_SIM',
+
+   # qsh_algorithms Shared libs
+   'SSC_SHARED_LIBS',
+
+   # Add new targets here
+   # Note:
+   #   Compose Build Tag as follows: [Component]_[Image]_[PD Type]
+   #   [Component] - Name of Component Folder. Example: CORE, SSC
+   #   [Image] - Type of processor. Example: ADSP, SLPI, MPSS
+   #   [PD Type] - ROOT or USER
+   #   see http://qwiki.qualcomm.com/qct-osteam/CoreBSP/SLPI_Development_Information#How_Build_Tags_are_Composed
+ ]
+ 
+# Store the build tags
+env.Replace(SSC_BUILD_TAGS=qsh_algorithms_build_tags)
+
+if os.path.isdir(env.subst('${BUILD_ROOT}') + '/sensinghub/platform'):
+  sensinghub_platform_ws_path = 'sensinghub/platform'
+else:
+  sensinghub_platform_ws_path = 'qsh_platform'
+ssc_root_dir = env.subst('${BUILD_ROOT}') + os.sep + sensinghub_platform_ws_path
+env.Replace(SSC_ROOT=ssc_root_dir)
+
+if env.IsKeyEnable(qsh_algorithms_build_tags) is True:
+  #Set up SEE builder
+  logger.debug("loading ssc_static_lib_builder in ssc_algos scons...")
+  env.Tool('ssc_static_lib_builder', toolpath = ['${SSC_ROOT}/build'])
+
+chipset_dir = env.GetChipsetDir()
+
+#-------------------------------------------------------------------------------
+#Publish protected APIs
+#-------------------------------------------------------------------------------
+env.PublishProtectedApi('QSH_ALGO_PRIVATE', [
+   "${QSH_ALGO_ROOT}/utils/inc",
+])
+
+#-------------------------------------------------------------------------------
+# Get dependent API header files
+#-------------------------------------------------------------------------------
+qsh_algo_protected_apis = [
+                          'QSH_ALGO_PRIVATE'
+                         ]
+env.RequireProtectedApi(qsh_algo_protected_apis)
+
+platform_public_apis = [ 'RTLD' ]
+
+env.RequirePublicApi(platform_public_apis, area='platform')
+env.RequirePublicApi(['QSH_INCLUDES'], area=env['SENSINGHUB_PLATFORM'])
+env.RequirePublicApi(['QSH_UNIT_TEST_INCLUDES'], area=env['SENSINGHUB_PLATFORM'])
+
+#-------------------------------------------------------------------------------
+# Any new algo must be added to this list
+#-------------------------------------------------------------------------------
+include_qsh_algorithms_libs =['sns_oem1','sns_dcf_test','sns_tppe','sns_human_presence_detection','qsh_oem1',
+                              'sns_odp','sns_odp_ext', 'sns_ccd_ml_decision_tree_demo']
+if 'SNS_SIM_EXTERNAL_BUILD' in env['CPPDEFINES']:
+  include_qsh_algorithms_libs = ['sns_oem1']
+env.Replace(QSH_ALGORITHMS_INCLUDE_LIBS=include_qsh_algorithms_libs)
+env.Append(CPPDEFINES = ['QSH_ALGORITHMS_LIST'])
+env.Replace(SSC_INCLUDE_PLAT_LIBS=[])
+env.Replace(SSC_INCLUDE_SIM_LIBS=[])
+env.Replace(SSC_INCLUDE_UNIT_TEST_LIBS=[])
+env.Replace(SSC_ISLAND_SWITCH_LIBS=[])
+
+# Add qsh_oem1 island files
+#env.AddUsesFlags('QSH_ISLAND_INCLUDE_OEM1')
+
+if 'QSH_ISLAND_INCLUDE_OEM1' in env:
+   env.Append(CPPDEFINES = ['QSH_ISLAND_INCLUDE_OEM1'])
+
+if env.IsKeyEnable(qsh_algorithms_build_tags) is True:
+  env.Append(CCFLAGS = ' -Os ') # Change to -O0 to support GDB debugging on simulation
+  env.Append(CFLAGS = ' -std=c17 -Werror -Wall -Wextra')
+  env.Append(CFLAGS = '-Wno-sign-compare')
+
+  env.Append(CPPDEFINES = ['SNS_RESTRICT_BUSY_WAIT'])
+  if env.IsBuildInternal(): 
+    env.AddUsesFlags(['SNS_ENABLE_DCF_TEST_SENSOR'])
+  
+  #setup builder based on target type
+  if env.get('SIM_PLATFORM') in ['x86']:
+     env.PrintInfo("Building for SSC_TARGET_X86 target")
+     env.Append(CPPDEFINES = ['SSC_TARGET_X86'])
+     env.Append(CPPDEFINES = ['QURT_GET_NUM_HW_THREADS_NOT_SUPPORTED'])
+     env.Append(CFLAGS = '-g') # For debugging symbols in GDB; should turn-off in production
+     env.Append(CFLAGS = ' -D_POSIX_C_SOURCE=200809L')
+     env.Append(CFLAGS = ' -D_FILE_OFFSET_BITS=64')
+     env.Replace(SSC_INCLUDE_SIM_LIBS=[])
+     env.Replace(SSC_INCLUDE_UNIT_TEST_LIBS=[])
+     env.AddUsesFlags(['SNS_USES_QSOCKETS_UIMAGE'])
+     env.Replace(SSC_EXCLUDE_LIBS=['qsh_oem1'])
+     env.Replace(SSC_INCLUDE_SENS_VEND_LIBS=[])
+
+     env.Append(CFLAGS = ' -fstack-usage')
+     env.Append(CFLAGS = ' -finstrument-functions')
+
+     if env.PathExists(chipset_dir):
+         env.LoadToolScript('por', toolpath = [chipset_dir])
+     else:
+         env.PrintWarning("missing chipset folder: ", chipset_dir)
+
+  elif env.PathExists(chipset_dir):
+     env.Append(CPPDEFINES = ['SSC_TARGET_HEXAGON'])
+     env.Append(CFLAGS = '-mllvm -disable-shrink-wrap-common-args')
+     sensor_vrnt = ARGUMENTS.get('SENSOR_VARIANT', 'por')
+     
+     if sensor_vrnt != 'por':
+        env.LoadToolScript(sensor_vrnt, toolpath = [os.path.join(chipset_dir, 'npor')])
+     else:
+       env.LoadToolScript('por', toolpath = [chipset_dir])
+
+  else:
+     env.PrintWarning("missing chipset folder: ", chipset_dir)
+     Return()
+
+  if env.PathExists("${BUILD_ROOT}/qsh_drivers") and env.GetUsesFlag('USES_QSH_SENSORS') and not env.GetUsesFlag('SENSORS_DD_DEV_FLAG'): 
+    env.Append(CPPDEFINES = ['QSH_ALGORITHMS_LIST'])
+
+  logger.debug("loading por.py from %s" % chipset_dir)
+  sensor_vrnt = ARGUMENTS.get('SENSOR_VARIANT', 'por')
+  if sensor_vrnt != 'por':
+     env.LoadToolScript(sensor_vrnt, toolpath = [os.path.join(chipset_dir, 'npor')])
+  else:
+     env.LoadToolScript('por', toolpath = [chipset_dir])
+
+
+
+
+  #-------------------------------------------------------------------------------
+  # Scan subdirectories to find more /build folders
+  #-------------------------------------------------------------------------------
+  env.LoadSoftwareUnits()
+
+  #-------------------------------------------------------------------------------
+  # Generates
+  #-------------------------------------------------------------------------------
+  if 'USES_STATIC_SENSORS_LIST_GEN' in env and not env.GetOption('cleanpack'):
+    env.GenerateStaticQshAlgorithmsList(env['SSC_BUILD_TAGS'])

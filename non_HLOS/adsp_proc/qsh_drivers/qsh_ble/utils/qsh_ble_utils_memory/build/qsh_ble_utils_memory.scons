@@ -1,0 +1,39 @@
+#===============================================================================
+#
+# Memory library
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2021-2023 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import inspect, os, re
+
+memory_cleanpack=['*.c','*.h']
+binlib=True
+
+if env.get('SIM_PLATFORM') not in ['x86']:
+  hexagon_version = float(re.search("(\d\.\d)(?:)",os.environ.get('HEXAGON_RTOS_RELEASE')).group(0))
+  if hexagon_version >= 8.5:
+    env.Append(CFLAGS = '-Wno-frame-address')
+
+island_segment = 'ssc'
+if 'USES_MULTIPLE_ISLAND' in env and 'USES_MEMSEG' in env:
+  valid_segments = env.GetMemorySegmentProps()
+  if 'qshtech' in valid_segments:
+    island_segment = 'qshtech'
+
+if 'USE_QSH_BLE_ISLAND_UTILS' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+             ssc_protected_api = ['QSH_BLE_UTILS_INTERNAL'],
+             clean_pack_list = memory_cleanpack,
+             binary_lib=binlib,
+             segment = island_segment,
+             add_island_files = True)

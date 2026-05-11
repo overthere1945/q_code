@@ -1,0 +1,221 @@
+// @file qsh_audio_data.proto
+//
+// Sensor provides access to audio pcm data.
+//
+// Copyright (c) 2021-2024 Qualcomm Technologies, Inc.
+// All Rights Reserved.
+// Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_std.proto";
+
+// Attribute requirements:
+// SNS_STD_SENSOR_ATTRID_TYPE: "audio_data"
+// SNS_STD_SENSOR_ATTRID_AVAILABLE: true if connected to ADSP
+// SNS_STD_SENSOR_ATTRID_API: "qsh_audio_data.proto"
+// SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_STREAMING
+
+// In following situation an error event,
+// SNS_STD_MSGID_SNS_STD_ERROR_EVENT, with payload sns_std_error_event, having
+// appropriate error code, will be raised:
+// 1. if remote process is not able the handle the request.
+// 2. if there is any IPC error.
+
+// Handling stream requests:
+// 1. The Audio-Data Sensor handles the qsh_audio_data_config
+//    message request with msgid QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG.
+//    It should be used to set up the usecase. Optional audio capture mic media format
+//    config can be requested here. Any values for flush period and batch period set
+//    can not be dynamically changed
+// 2. The Audio-Data Sensor reads batching_period item if configured in
+//    batch_spec. Minimum default batching period supported by audio path 
+//    depends on the use case along with other active concurrencies in the Audio.
+// 3. The Audio-Data Sensor uses flush_period item in sns_std_request 
+//    to size the audio-buffer to cache history audio data.
+//    "flush_period" is also considered in microseconds. 
+//    If "flush_period" is set to 0 there will be no buffering in audio. So if a flush request is issued,
+//    the history data returned can range from 0 to 20ms.
+// 4. The Audio-Data Sensor does not support dynamic change in "flush_period", "batch_period"
+//    or "qsh_audio_data_stream_type" currently. If such change is required then requests
+//    should be removed from that instance and/or a new instance should be set up.
+//    If the Audio Data Sensor implementation does not support dynamic changes to flush_period, batch_period,
+//    or qsh_audio_data_stream_type it will send an error response to the configuration request, and the old
+//    configuration will continue to be honored.
+// 6. The Audio-Data Sensor uses flush_only item in sns_std_request 
+//    to enable (flush_only:false) or disable (flush_only:true) audio data streaming.
+// 7. The Audio-Data Sensor supports SNS_STD_MSGID_SNS_STD_FLUSH_REQ when flush_only:true.
+//    All the audio history data is streamed (faster than real time).
+
+// Suggested call flow 
+// Case 1 : if specific mic path media format is not required:
+// 1. Setup the audio use case using either of the two messages:
+//        msg_id = QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG
+//        sns_std_request:batching:batch_period has to be lesser than flush period.
+//        sns_std_request:batching:flush_only = true or false
+//        sns_std_request:batching:flush_period = size of history audio data required when flush is issued 
+//                                                for example 500000us = 500ms.
+//        qsh_audio_data_config:stream_type = QSH_AUDIO_DATA_STREAM_TYPE_PCM_RAW (for raw audio data)
+//        qsh_audio_data_config:stream_type = QSH_AUDIO_DATA_STREAM_TYPE_PCM_NS (for noise-supressed audio data)
+// Case 2 : if specific mic path media format is required:
+// 1. Setup the audio use case.
+//        msg_id = QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG
+//        sns_std_request:batching:batch_period has to be lesser than flush period and this value is not fixed anymore. Minimum batch period is 20ms which is same as frame size.
+//        sns_std_request:batching:flush_only = true (stop flow) or false (start flow)
+//        sns_std_request:batching:flush_period = 500000 (for example 500ms)
+//        qsh_audio_data_config:stream_type = QSH_AUDIO_DATA_STREAM_TYPE_PCM_RAW (for raw audio data)
+//        qsh_audio_data_config:stream_type = QSH_AUDIO_DATA_STREAM_TYPE_PCM_NS (for noise-supressed audio data)
+//		  qsh_audio_data_ep_media_format_cfg:sampling_rate = 16000
+//		  qsh_audio_data_ep_media_format_cfg:num_channels = 2
+//		  qsh_audio_data_ep_media_format_cfg:channel_type = [QSH_AUDIO_DATA_CHANNEL_L, QSH_AUDIO_DATA_CHANNEL_R]
+// 2. start audio data streaming
+//        msg_id = QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG
+//        sns_std_request:batching:flush_only = false
+// 3. stop audio data streaming
+//        msg_id = QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG
+//        sns_std_request:batching:flush_only = true
+// 4. stream history data
+//        msg_id = SNS_STD_MSGID_SNS_STD_FLUSH_REQ
+
+enum qsh_audio_data_msgid
+{
+  option (nanopb_enumopt).long_names = false;
+
+  // Message to set up audio data config
+  QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG = 512;
+  
+  // --DEPRECATED--
+  QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_FLOW = 513  [deprecated=true]; 
+  
+  // Event for media format of data 
+  QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_MEDIA_FORMAT_EVENT = 768;
+
+  // Event on reception of data
+  QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_EVENT = 1024;
+  
+}
+
+// Stream types for pcm data
+enum qsh_audio_data_stream_type_t
+{
+   option (nanopb_enumopt).long_names = false;
+   
+   // Invalid
+   QSH_AUDIO_DATA_STREAM_TYPE_INVALID = 0;
+   
+   // Noise suppression is not required
+   QSH_AUDIO_DATA_STREAM_TYPE_PCM_RAW = 1;
+   
+   // Noise suppression is required
+   QSH_AUDIO_DATA_STREAM_TYPE_PCM_NS = 2;
+}
+
+// Channel received from spf
+enum qsh_audio_data_channel_type
+{
+   option (nanopb_enumopt).long_names = false;
+
+   // Invalid / Unset
+   QSH_AUDIO_DATA_CHANNEL_INVALID = 0;                          
+   
+   // Left Channel
+   QSH_AUDIO_DATA_CHANNEL_L       = 1;
+	
+   // Right Channel
+   QSH_AUDIO_DATA_CHANNEL_R       = 2;
+}
+
+
+//media format config structure for mic capture path
+message qsh_audio_data_ep_media_format_cfg
+{
+	//sampling rate in Hz of pcm data at mic capture path
+	//currently supports 16000 (with batching and flushing)
+	//and 48000 without internal buffering 
+	optional uint32 sampling_rate = 1 [default = 16000];
+	
+	//bit width of data at mic capture path
+	//currently supports only 16 bit
+	optional uint32 bit_width = 2 [default = 16];
+
+	
+	//number of channels at mic capture path
+	//currently supports 1 and 2 channels
+	optional  uint32 num_channels = 3 [default = 2];
+	
+	//channel type - enc/Dec as qsh_audio_data_channel_type
+	//should be as many as num_channels or 0
+	repeated qsh_audio_data_channel_type channel_type = 4;
+}
+
+//payload (QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_CONFIG)
+//when sensor cients sends this configuration then an audio-capture session is setup, which keeps buffering the audio data in a buffer till the data-flow is enabled.
+message qsh_audio_data_config
+{
+   //This field is deprecated, leave it unassigned!
+   required uint32 history_ms = 1 [deprecated = true];   
+   
+   // stream type for pcm data
+   // this can be used to select either noise supressed or raw mic data.
+   required qsh_audio_data_stream_type_t stream_type = 2  [default = QSH_AUDIO_DATA_STREAM_TYPE_PCM_RAW];
+   
+   	//mic endpoint configuration
+	optional qsh_audio_data_ep_media_format_cfg hwep_mf_cfg = 3;
+}
+
+//This message is deprecated, don't use!
+message qsh_audio_data_flow
+{
+   required bool data_flow_enable  = 1 [deprecated = true];
+}
+
+enum qsh_audio_data_endian_t
+{
+   option (nanopb_enumopt).long_names = false;
+   
+   // Invalid
+   QSH_AUDIO_DATA_INVALID_VALUE = 0;
+   
+   // Little Endian
+   QSH_AUDIO_DATA_PCM_LITTLE_ENDIAN = 1;
+   
+   // Big Endian
+   QSH_AUDIO_DATA_PCM_BIG_ENDIAN = 2;
+}
+
+//payload (QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_MEDIA_FORMAT_EVENT)
+//this is an event to inform about the media format of the audio pcm data sent in QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_EVENT event.
+//this is sent once before the first data-packet.
+message qsh_audio_data_media_format_event
+{
+   //sampling rate in samples per second
+   //currenty support only 16kHz
+   required uint32 sampling_rate = 1 [default = 16000];
+ 
+   //Number of channels
+   required uint32 num_channels = 2 [default = 2];
+   
+   //Number of bits used to store each sample per channel
+   required uint32 bits_per_sample = 3 [default = 16];
+   
+   //PCM samples are stored in little or big endian format
+   required qsh_audio_data_endian_t endianness = 4 [default = QSH_AUDIO_DATA_PCM_LITTLE_ENDIAN];
+   
+   required qsh_audio_data_stream_type_t stream_type = 5 [default = QSH_AUDIO_DATA_STREAM_TYPE_PCM_RAW];
+   
+   	//channel type for each channel in num_channels
+	//variable array of size num_channels elements
+	//takes values from qsh_audio_data_channel_type
+	//Enc/Dec as pb uint32 arr	
+	repeated qsh_audio_data_channel_type channel_type = 6;
+}
+
+//payload (QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_EVENT)
+//event to send the audio pcm data to the clients.
+//Each event packet contains maximum of 20ms audio data.
+//"timestamp" field of sns_sensor_event carries the timestamp of the first PCM sample of this audio buffer.
+//Media format of this audio buffer is same as informed by QSH_AUDIO_DATA_MSGID_QSH_AUDIO_DATA_MEDIA_FORMAT_EVENT
+message qsh_audio_data_event
+{
+  required bytes buffer = 1; 
+}

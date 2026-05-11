@@ -1,0 +1,17 @@
+#===============================================================================
+#
+# Audio sensors.
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2020-2021 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+env.LoadSoftwareUnits()

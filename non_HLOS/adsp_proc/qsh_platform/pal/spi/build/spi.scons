@@ -1,0 +1,54 @@
+#===============================================================================
+#
+# SPI utilities
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#  $DateTime:  $
+#  $Change:  $
+#
+#===============================================================================
+Import('env')
+import inspect
+
+com_clean_pack_list = []
+com_binary_lib = False
+
+if 'SNS_ISLAND_INCLUDE_SPI' in env['CPPDEFINES']:
+  spi_island_sections = ['.text.sns', '.data.sns', '.rodata']
+else:
+  spi_island_sections = ''
+  
+if 'SENSORS_DD_DEV_FLAG' in env:
+  com_clean_pack_list = ['*.c','*.h','*.idl']
+  com_binary_lib = True
+
+if 'SENSORS_ALGO_DEV_FLAG' in env:
+  com_binary_lib = True
+
+spi_flavor = ["hexagon"]
+
+if 'SSC_TARGET_NO_SPI' in env['CPPDEFINES']:
+  spi_flavor = ["hexagon_core_no_spi"]
+elif 'SSC_TARGET_HEXAGON_CORE_MPSS_11_0' in env['CPPDEFINES']:
+  spi_flavor = ["hexagon_core_mpss_11.0"]
+elif 'SSC_TARGET_X86' in env['CPPDEFINES']:
+  Return()
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               flavor = spi_flavor,
+               core_public_api = ['BUSES','DEBUGTOOLS','KERNEL'],
+               ssc_protected_api = ['SNS_FRAMEWORK','SNS_INTERNAL_INCLUDES'],
+               diag_error_ssid = "MSG_SSID_SNS_SENSOR_EXT",
+               clean_pack_list = com_clean_pack_list,
+               binary_lib = com_binary_lib,
+               island_sections = spi_island_sections)
+

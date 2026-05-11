@@ -1,0 +1,72 @@
+#===============================================================================
+#
+# Sensors bus bandwidth utility
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#===============================================================================
+Import('env')
+import json
+import subprocess
+import os, inspect
+import platform
+
+#-------------------------------------------------------------------------------
+# External dependencies
+#-------------------------------------------------------------------------------
+CBSP_API = [
+  'SERVICES',
+  'POWER',
+  'DAL',        # for DALSys.h included in npa.h
+  'DEBUGTOOLS',
+  'KERNEL',
+  'SYSTEMDRIVERS',
+]
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+
+ddr_bw_flavor = ["ddr_bw/hexagon"]
+if 'SSC_DDR_BW_DISABLED' in env['CPPDEFINES'] or 'SSC_TARGET_X86' in env['CPPDEFINES']:
+  ddr_bw_flavor = ["ddr_bw/stub"]
+
+lpi_ls_flavor = ["lpi_ls_bw/hexagon"]
+if 'SSC_LPI_LS_BW_DISABLED' in env['CPPDEFINES'] or 'SSC_TARGET_X86' in env['CPPDEFINES']:
+  lpi_ls_flavor = ["lpi_ls_bw/stub"]
+
+tcm_bw_flavor = ["lpi_tcm_bw/stub"] 
+if 'SSC_TCM_BW_ENABLE' in env['CPPDEFINES']:
+  tcm_bw_flavor = ["lpi_tcm_bw/hexagon"]
+
+bus_bw_flavor = ["common/src"] + ddr_bw_flavor + tcm_bw_flavor + lpi_ls_flavor  
+if 'SSC_TARGET_X86' in env['CPPDEFINES']:
+  bus_bw_flavor = ["common/stub"]
+
+if 'SENSORS_DD_DEV_FLAG' not in env:
+  clean_pack= []
+  binlib=False
+else:
+  clean_pack=['*.c','*.h']
+  binlib=True
+
+if 'SENSORS_ALGO_DEV_FLAG' in env:
+  binlib = True
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               flavor            = bus_bw_flavor,
+               core_public_api   = CBSP_API,
+               ssc_protected_api = ['SNS_FRAMEWORK','SNS_INTERNAL_INCLUDES'],
+               clean_pack_list   = clean_pack,
+               add_island_files  = False,
+               binary_lib        = binlib,
+               segment           = 'qsh')
+
+

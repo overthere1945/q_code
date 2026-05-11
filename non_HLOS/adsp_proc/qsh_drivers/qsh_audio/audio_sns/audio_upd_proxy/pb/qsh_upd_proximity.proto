@@ -1,0 +1,17 @@
+// @file qsh_upd_proximity.proto
+//
+// Defines the API for ultrasound Proximity Sensors.
+//
+// Copyright (c) 2021 Qualcomm Technologies, Inc.
+// All Rights Reserved.
+// Confidential and Proprietary - Qualcomm Technologies, Inc.
+ 
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_proximity.proto";
+ 
+// Attribute requirements:
+// SNS_STD_SENSOR_ATTRID_TYPE: "upd_proximity"
+// SNS_STD_SENSOR_ATTRID_AVAILABLE: true if connected to ADSP
+// SNS_STD_SENSOR_ATTRID_API: "qsh_upd_proximity.proto"
+// SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_ON_CHANGE

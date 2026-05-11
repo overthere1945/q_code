@@ -1,0 +1,54 @@
+#===============================================================================
+# 파일명: sns_himax_dsp.scons
+# 목적 및 기능: Himax DSP Proximity Trigger 드라이버를 Qualcomm ADSP/SEE 환경에서 빌드합니다.
+# change(add)-hyungchul-20260429-1620: sns_proximity PB 의존성을 추가하여 sns_proximity.pb.h 및 이벤트를 빌드에 포함
+#===============================================================================
+Import('env') # SCons 빌드 환경 변수를 가져옵니다.
+import inspect # 현재 파일 경로를 AddSSCSU에 전달하기 위해 사용합니다.
+
+himax_dsp_island_enable = False # Himax DSP는 SPI, DDR, UIO 공유 메모리 접근이 있으므로 기본적으로 island 비활성화입니다.
+
+# 코어 BSP API 의존성입니다.
+# 드라이버가 접근해야 할 하위 시스템 인터페이스들을 정의합니다.
+cbsp_api = [
+  'DEBUGTOOLS', # SNS_PRINTF/SNS_INST_PRINTF 로그 출력을 사용합니다.
+  'SERVICES',   # SEE 서비스 매니저와 공통 서비스를 사용합니다.
+  'KERNEL',     # QuRT 메모리 매핑과 barrier를 사용합니다.
+  'POWER',      # COM 포트 전원 제어 의존성을 유지합니다.
+  'MPROC',      # 멀티 프로세서 통신 의존성을 유지합니다.
+  'STORAGE',    # 기존 빌드 호환성을 위해 유지합니다.
+]
+
+# Protocol Buffer API 의존성입니다.
+pb_api = [
+  'sns_suid',             # interrupt, async_com_port SUID lookup에 사용합니다.
+  'sns_interrupt',        # GPIO 102 interrupt stream 등록과 이벤트 수신에 사용합니다.
+  'sns_async_com_port',   # 기존 의존성 유지 및 async COM port SUID lookup에 사용합니다.
+  'sns_std',              # 표준 attribute value와 공통 메시지에 사용합니다.
+  'sns_std_type',         # 표준 타입 의존성을 유지합니다.
+  'sns_std_sensor',       # 표준 sensor attribute, on-change request, status enum에 사용합니다.
+  'sns_proximity',        # change(add)-hyungchul-20260429-1620: Proximity 표준 이벤트 payload에 사용합니다.
+]
+
+# QSH(Qualcomm Sensor Hub) 플랫폼의 내부/외부 헤더 파일 경로를 컴파일러의 include path에 추가합니다.
+env.Append(CPPPATH=["${BUILD_ROOT}/qsh_platform/inc", "${BUILD_ROOT}/qsh_platform/inc/internal"])
+
+# 빌드 환경에서 Himax DSP island 포함 플래그가 켜진 경우만 island 파일로 추가합니다.
+if 'SNS_ISLAND_INCLUDE_HIMAX_DSP' in env:     # 빌드 커맨드나 최상위 설정에 플래그가 존재하면
+  himax_dsp_island_enable = True              # Island 모드를 활성화하여 저전력 메모리 영역에 적재 준비
+
+# SSC static library builder와 Hexagon 타겟 조건을 확인합니다.
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  # 현재 타겟 아키텍처가 Hexagon DSP(ADSP/SLPI)인지 확인
+  if 'SSC_TARGET_HEXAGON' in env['CPPDEFINES']:
+    # change(add)-hyungchul-20260320-1426: 드라이버 등록 함수명을 sns_register_himax_dsp로 명시하여 빌드 툴체인에 전달
+    env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               register_func_name = "sns_register_himax_dsp", # 센서 등록 함수명입니다.
+               binary_lib = False,                            # 소스 기반 빌드입니다.
+               add_island_files = himax_dsp_island_enable,    # island 포함 여부입니다.
+               diag_ssid = "MSG_SSID_SNS_SENSOR_EXT",         # QXDM 로그 SSID입니다.
+               ssc_protected_api = ['SNS_INTERNAL_INCLUDES', 'SNS_FRAMEWORK'], # SEE 내부 프레임워크 헤더 접근 권한입니다.
+               pb_apis = pb_api,                              # PB 의존성 목록입니다.
+               core_public_api = cbsp_api,                    # 코어 BSP 의존성 목록입니다.
+               qsh_api = ['QSH_INCLUDES'],                    # QSH include 의존성입니다.
+               segment = 'ssc')                               # SSC segment에 배치합니다.

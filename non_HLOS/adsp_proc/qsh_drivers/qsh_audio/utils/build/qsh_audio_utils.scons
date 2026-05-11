@@ -1,0 +1,62 @@
+#===============================================================================
+#
+# qsh audio utils
+#
+# GENERAL DESCRIPTION
+#    build script
+#
+# Copyright (c) 2021-2024 by Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#-------------------------------------------------------------------------------
+#
+#
+#===============================================================================
+Import('env')
+import os, inspect
+
+ME = inspect.getfile(inspect.currentframe())
+MY_ROOT = os.path.dirname(os.path.dirname(ME))
+
+env.Replace(MY_ROOT=MY_ROOT)
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+env.RequireRestrictedApi(['QSH_AUDIO_INCLUDES'])
+
+qsh_audio_island_enable = False
+qsh_audio_binary_lib = True
+ssid = "MSG_SSID_SNS_SENSOR_INT"
+
+if 'SNS_ISLAND_INCLUDE_QSH_AUDIO' in env:
+  qsh_audio_island_enable = True
+
+if 'USES_ASPS_TEST_SRC' in env:
+   env.Append(CFLAGS = "-DSTANDALONE_DATA_TRANSFER_TEST")
+
+qsh_audio_flavor = ["osa/src", "uqci/src"]
+
+if env.get('SIM_PLATFORM') in ['x86']:
+   qsh_audio_flavor += ["osa/x86"]
+else:
+   qsh_audio_flavor += ["osa/hexagon"]
+
+island_segment = 'va'
+if 'USES_MULTIPLE_ISLAND' in env and 'USES_MEMSEG' in env:
+  valid_segments = env.GetMemorySegmentProps()
+  if 'qshtech' in valid_segments:
+    island_segment = 'qshtech'
+
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+               flavor = qsh_audio_flavor,
+               qsh_api = ['QSH_INCLUDES'],
+               add_island_files = qsh_audio_island_enable,
+               binary_lib = qsh_audio_binary_lib,
+               diag_ssid = ssid,
+               segment = island_segment)
+
+

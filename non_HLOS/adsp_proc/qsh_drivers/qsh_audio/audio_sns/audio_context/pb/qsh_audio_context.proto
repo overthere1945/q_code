@@ -1,0 +1,142 @@
+// @file qsh_audio_context.proto
+//
+// Sensor provides access to audio context events.
+//
+// This Sensor will create a connection to the remote process where Audio context services will run.
+// A new instance will be created for each client.
+// Audio context services will be started in remote process upon receipt of the first client request.
+// Subsequent requests will be sent to the same service.
+// The connection will be closed after all the client requests are removed.
+//
+// If an error event is received from the remote process then all the clients will be informed.
+// It is then the responsibility of the client to close the data stream, and re-open a new one if desired.
+//
+// Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+// All rights reserved.
+// Confidential and Proprietary - Qualcomm Technologies, Inc.
+
+
+syntax = "proto2";
+import "nanopb.proto";
+import "sns_std.proto";
+
+// Attribute requirements:
+// SNS_STD_SENSOR_ATTRID_TYPE: "audio_context"
+// SNS_STD_SENSOR_ATTRID_AVAILABLE: true if connected to ADSP
+// SNS_STD_SENSOR_ATTRID_API: "qsh_audio_context.proto"
+// SNS_STD_SENSOR_ATTRID_STREAM_TYPE: SNS_STD_SENSOR_STREAM_TYPE_ON_CHANGE
+
+
+
+// In following situation an error event,
+// SNS_STD_MSGID_SNS_STD_ERROR_EVENT, with payload sns_std_error_event, having
+// appropriate error code, will be raised:
+// 1. if remote process is not able the handle the request.
+// 2. if there is any IPC error.
+
+enum qsh_audio_context_msgid
+{
+  option (nanopb_enumopt).long_names = false;
+
+  // Request message to enable context events
+  // if client sends multiple request then the latest request will be handled and previous requests will be removed.
+  QSH_AUDIO_CONTEXT_MSGID_QSH_AUDIO_CONTEXT_REQ = 512;
+
+  // Request message to query supported context events
+  QSH_AUDIO_CONTEXT_MSGID_QSH_AUDIO_CONTEXT_QUERY = 513;
+
+  // Asynchronously received context event message
+  QSH_AUDIO_CONTEXT_MSGID_QSH_AUDIO_CONTEXT_EVENTS = 1024;
+
+  // Asynchronously received message to inform supported contexts
+  QSH_AUDIO_CONTEXT_MSGID_QSH_AUDIO_CONTEXT_LIST = 1025;
+}
+
+//context configuration payload.
+//refer to acd_context_specific_generic_reg_info_t in qsh\qsh_audio\audio_api\acd_api.h
+message qsh_audio_context_config
+{
+  //GUID of the context to enable or disable
+  //refer to qsh\qsh_audio\audio_api\contexts_api.h
+  required uint32 context_id = 1;
+
+  //threshold for context detection. range 0 to 100.
+  //event is raised if threshold is met.
+  //when detected threshold crosses the configured threshold, client is informed with event type: QSH_AUDIO_CONTEXT_EVENT_DETECTED
+  //now client is continously informed about the detected threshold even if it gradually decreases and goes below the configured threshold.
+  //once detected threshold goes below the minimum configured threshold across all the clients then event is considered STOPPED and
+  //clients are notified with event_type: QSH_AUDIO_CONTEXT_EVENT_STOPPED
+  //unit of threshold vaires depending on the context-id, for most contexts it is a unitless confidence score of detected event ranging from 0 to 100.
+  required uint32 threshold = 2;
+
+  //step size in threshold
+  //step_size can be used by clients to configure the frequency of QSH_AUDIO_CONTEXT_EVENT_DETECTED event.
+  //client is guaranteed to receive the DETECTED event if there is variation in detected-threshold by step_size amount.
+  //client may also get an event if threshold vaires within step_size.
+  required uint32 step_size = 3;
+}
+
+enum qsh_audio_context_event_type {
+  option (nanopb_enumopt).long_names = false;
+
+  // invalid event type
+  QSH_AUDIO_CONTEXT_EVENT_INVALID = 0;
+
+  // context detection is stopped,
+  // detected threshold went below the minimum configured threshold from all the clients.
+  QSH_AUDIO_CONTEXT_EVENT_STOPPED = 1;
+
+  // context is detected,
+  // detected threshold crossed the configured threshold or
+  // detected threshold changed significantly after crossing the configured threshold.
+  QSH_AUDIO_CONTEXT_EVENT_DETECTED = 2;
+}
+
+//context event payload.
+//refer to acd_context_specific_generic_event_t in qsh\qsh_audio\audio_api\acd_api.h
+message qsh_audio_context_event
+{
+  //GUID of the detected context
+  //refer to qsh\qsh_audio\audio_api\contexts_api.h
+  required uint32 context_id = 1;
+
+  //Context Detected is Stopped or Detected
+  required qsh_audio_context_event_type event_type = 2;
+
+  //detected threshold of the context. range 0 to 100
+  required uint32 threshold = 3;
+
+  //timestamp at which context event started.
+  //this is deferent than the sns_sensor_event:timestamp
+  /* e.g.
+  * if Baby starts crying at t = 0 sec but detected threshold is crossed at t = 2 sec
+  * then start_timestamp will be t = 0 sec and sns_sensor_event:timestamp will be t = 2 sec.
+  * sns_sensor_event:timestamp is the time at which threshold is evaluated.
+  * and start_timestamp is the time at which event actually started occuring.
+  * In case of ongoing events (e.g baby is continously crying) start_timestamp remains same
+  * (the first time when baby started crying).
+  */
+  required uint64 start_timestamp = 4;
+}
+
+//request payload (QSH_AUDIO_CONTEXT_MSGID_REQ)
+message qsh_audio_context_req
+{
+  //configuration for each context
+  /* maximum three contexts can be configured per client. */
+  repeated qsh_audio_context_config config = 1 [(nanopb).max_count = 3];
+}
+
+//event payload (QSH_AUDIO_CONTEXT_MSGID_EVENTS)
+message qsh_audio_context_events
+{
+  //event for each detected context
+  repeated qsh_audio_context_event events = 1;
+}
+
+//payload (QSH_AUDIO_CONTEXT_MSGID_CONTEXT_LIST)
+message qsh_audio_context_list
+{
+  //array of context ids
+  repeated uint32 context_id = 1;
+}

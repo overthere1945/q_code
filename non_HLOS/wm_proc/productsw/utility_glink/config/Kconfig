@@ -1,0 +1,27 @@
+# ==============================================================================
+#                 Copyright (c) 2025 Qualcomm Technologies, Inc.
+#                                All Rights Reserved.
+#                 Confidential and Proprietary - Qualcomm Technologies, Inc.
+# ==============================================================================
+# $QTI_LICENSE_C$
+
+config QC_PDTSW_UTILITY_GLINK_ENABLE
+    bool "Enable pdtsw utility glink module"
+    depends on PDTSW_COMMON_WORKER_THREAD_ENABLE
+    default n
+    help
+        Enables the product software utility glink channels.
+        It would be enabled automatically if modules dependent
+        on it are enabled (for ex - QC_PDTSW_PSRAM_ARBITER_ENABLE).
+        It shouldn't be explicity defined in the .conf file.
+
+config QC_PDTSW_UTILITY_GLINK_LOG_LEVEL
+    int "Set log level for pdtsw utility glink module"
+    range 0 4
+    default 3
+    help
+        Level-0: OFF
+        Level-1: LOG_LEVEL_ERR
+        Level-2: LOG_LEVEL_WRN
+        Level-3: LOG_LEVEL_INF
+        Level-4: LOG_LEVEL_DBG

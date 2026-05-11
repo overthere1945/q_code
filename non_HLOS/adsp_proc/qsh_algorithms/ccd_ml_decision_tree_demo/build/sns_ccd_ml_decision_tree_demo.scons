@@ -1,0 +1,28 @@
+#===============================================================================
+#
+# @file
+#
+# @brief Activity Recognition Sensor build script
+#
+# @copyrigh Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#
+#===============================================================================
+Import('env')
+import inspect
+import os
+
+#-------------------------------------------------------------------------------
+# Adds self
+#-------------------------------------------------------------------------------
+
+
+ccd_ml_decision_tree_demo_flavor = ['sensor/inc', 'sensor/src', 'algo/inc', 'algo/src']
+
+if 'USES_SSC_STATIC_LIB_BUILDER' in env:
+  env.AddSSCSU(inspect.getfile(inspect.currentframe()),
+             flavor = ccd_ml_decision_tree_demo_flavor,
+             clean_pack_list = ['*.c','*.h'],
+             register_func_name = "sns_ccd_ml_decision_tree_demo_register",
+             binary_lib = False)
