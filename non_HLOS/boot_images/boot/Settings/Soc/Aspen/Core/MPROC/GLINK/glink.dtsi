@@ -1,0 +1,88 @@
+/*------------------------------------------------------------------------------
+   mproc-glink device-tree source. 
+------------------------------------------------------------------------------*/
+/*!
+   This file contains GLINK settings specific to SOC.
+*/
+
+/*------------------------------------------------------------------------------
+ Copyright (c) Qualcomm Technologies, Inc.
+ All Rights Reserved.
+ Confidential and Proprietary - Qualcomm Technologies, Inc.
+------------------------------------------------------------------------------*/
+
+#include "smem_host_type.h"
+#include "glink_defines.h"
+#include "ipcc_defines.h"
+
+&sw {
+  glink {
+    compatible = "qcom,glink";
+    supported-hosts = <SMEM_MODEM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT
+                        SMEM_ADSP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT
+                        SMEM_CDSP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT
+                        SMEM_DCP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT
+                        SMEM_AM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT
+                        SMEM_WM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT
+                        SMEM_RPM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+    proc-info {
+      host = <SMEM_APPS SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+    };
+    xport-smem-config {
+      edge-01 {
+        remote-host       = <SMEM_MODEM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+        fifo-size         = <0x4000>;
+        mtu-size          = <0x1000>;
+        irq-out           = <IPCC_C_MPSS GLINK_IPCC_IRQ>;
+        default-qos       = <1>;
+        custom-fifo-alloc = <0>;
+        clear-interrupt   = <0>;
+      };
+      edge-02 {
+        remote-host       = <SMEM_ADSP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+        fifo-size         = <0x4000>;
+        mtu-size          = <0x1000>;
+        irq-out           = <IPCC_C_LPASS GLINK_IPCC_IRQ>;
+        default-qos       = <1>;
+        custom-fifo-alloc = <0>;
+        clear-interrupt   = <0>;
+      };
+      edge-03 {
+        remote-host       = <SMEM_CDSP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+        fifo-size         = <0x4000>;
+        mtu-size          = <0x1000>;
+        irq-out           = <IPCC_C_CDSP GLINK_IPCC_IRQ>;
+        default-qos       = <1>;
+        custom-fifo-alloc = <0>;
+        clear-interrupt   = <0>;
+      };
+      edge-04 {
+        remote-host       = <SMEM_DCP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+        fifo-size         = <0x1000>;
+        mtu-size          = <0x1000>;
+        irq-out           = <IPCC_C_DCP GLINK_IPCC_IRQ>;
+        default-qos       = <1>;
+        custom-fifo-alloc = <0>;
+        clear-interrupt   = <0>;
+      };
+      edge-05 {
+        remote-host       = <SMEM_AM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+        fifo-size         = <0x4000>;
+        mtu-size          = <0x1000>;
+        irq-out           = <IPCC_C_M55_AM GLINK_IPCC_IRQ>;
+        default-qos       = <1>;
+        custom-fifo-alloc = <0>;
+        clear-interrupt   = <0>;
+      };
+      edge-06 {
+        remote-host       = <SMEM_WM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>;
+        fifo-size         = <0x4000>;
+        mtu-size          = <0x1000>;
+        irq-out           = <IPCC_C_M55_WM GLINK_IPCC_IRQ>;
+        default-qos       = <1>;
+        custom-fifo-alloc = <0>;
+        clear-interrupt   = <0>;
+      };
+    };
+  };
+};

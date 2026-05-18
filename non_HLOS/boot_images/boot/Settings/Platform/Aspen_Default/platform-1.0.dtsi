@@ -1,0 +1,4 @@
+/* platform overlay container file */
+/* tech teams add #include statements */
+#include "Core/Buses/qup_common/qupv3-pinctrl.dtsi"
+#include "Core/Buses/qup_common/qupv3.dtsi"

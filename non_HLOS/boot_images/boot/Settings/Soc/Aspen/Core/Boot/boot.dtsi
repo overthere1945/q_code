@@ -1,0 +1,6 @@
+// Core/Boot/boot.dtsi
+// core boot HW settings
+
+&soc {
+        boot { };
+};

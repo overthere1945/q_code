@@ -1,0 +1,46 @@
+/**
+
+This is the settings file for AspenA Top Qup pin control DTSI
+
+Copyright (c) Qualcomm Technologies, Inc.
+All Rights Reserved.
+Confidential and Proprietary - Qualcomm Technologies, Inc.
+*/
+/*
+===============================================================================
+ 
+                               Edit History
+ 
+$Header:
+ 
+when       who     what, where, why
+--------   ---     ------------------------------------------------------------
+12/23/25   MP      Initial revision
+ 
+*/
+
+#include "gpio-dt.h"
+
+#define qspi_clk_cfg                      GPIO_CFG_BUSES(GPIO_INPUT,  GPIO_NO_PULL,    GPIO_DRIVE_STRENGTH(800), 0)
+#define qspi_cs0_cfg                      GPIO_CFG_BUSES(GPIO_OUTPUT, GPIO_PULL_UP,   GPIO_DRIVE_STRENGTH(800), 0)
+#define qspi_cs1_cfg                      GPIO_CFG_BUSES(GPIO_OUTPUT, GPIO_PULL_UP,   GPIO_DRIVE_STRENGTH(800), 0)
+#define qspi_data0_cfg                    GPIO_CFG_BUSES(GPIO_INPUT,  GPIO_PULL_DOWN, GPIO_DRIVE_STRENGTH(800), 0)
+#define qspi_data1_cfg                    GPIO_CFG_BUSES(GPIO_INPUT,  GPIO_PULL_DOWN, GPIO_DRIVE_STRENGTH(800), 0)
+#define qspi_data2_cfg                    GPIO_CFG_BUSES(GPIO_INPUT,  GPIO_PULL_DOWN, GPIO_DRIVE_STRENGTH(800), 0)
+#define qspi_data3_cfg                    GPIO_CFG_BUSES(GPIO_INPUT,  GPIO_PULL_DOWN, GPIO_DRIVE_STRENGTH(800), 0)
+
+/* Commenting as currently no tlmm configuration required for qspi.
+
+&tlmm{
+    qspi_pinctrl_active: qspi_pinctrl_active {
+        config = <&qspi_data_0  qspi_data0_cfg>,
+                 <&qspi_data_1  qspi_data1_cfg>,
+                 <&qspi_clk     qspi_clk_cfg>,
+                 <&qspi_cs_n_0  qspi_cs0_cfg>,
+                 <&qspi_data_2  qspi_data2_cfg>,
+                 <&qspi_data_3  qspi_data3_cfg>,
+                 <&qspi_cs_n_1  qspi_cs1_cfg>;
+    };
+};
+
+*/

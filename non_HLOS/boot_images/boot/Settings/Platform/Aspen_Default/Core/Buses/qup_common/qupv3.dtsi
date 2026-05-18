@@ -1,0 +1,128 @@
+/**
+
+This is the settings file for AspenA Top Qup DTSI
+
+Copyright (c) Qualcomm Technologies, Inc.
+All Rights Reserved.
+Confidential and Proprietary - Qualcomm Technologies, Inc.
+*/
+/*
+===============================================================================
+ 
+                               Edit History
+ 
+$Header:
+ 
+when       who     what, where, why
+--------   ---     ------------------------------------------------------------
+01/17/25   AY        Initial revision
+ 
+*/
+
+#include "qup_defines.h"
+
+&soc {
+    /* QUPv3_1  wrapper  instance */
+    TOP_QUP_1{
+        status                      = "okay";
+        /* QUP1 SE0 Instance */
+        TOP_QUP_1_SE_0 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE1 Instance */
+        TOP_QUP_1_SE_1 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE2 Instance */
+        TOP_QUP_1_SE_2 {
+            status                      = "okay"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE3 Instance */
+        TOP_QUP_1_SE_3 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE4 Instance */
+        TOP_QUP_1_SE_4 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE5 Instance */
+        TOP_QUP_1_SE_5 {
+            status                      = "okay"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE6 Instance */
+        TOP_QUP_1_SE_6 {
+            status                      = "okay"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE7 Instance */
+        TOP_QUP_1_SE_7 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE8 Instance */
+        TOP_QUP_1_SE_8 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE9 Instance */
+        TOP_QUP_1_SE_9 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+        /* QUP1 SE10 Instance */
+        TOP_QUP_1_SE_10 {
+            status                      = "disabled"; /* MAKE IT TO 'okay' TO ENABLE*/
+            /*As of now in boot, below touch points are not supposed to be updated by OEMs
+            mode_select                 = /bits/  8 <0>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | ENABLE_FATAL_ON_TIMEOUT | POLLED_MODE)>;
+            */
+        };
+    };
+};

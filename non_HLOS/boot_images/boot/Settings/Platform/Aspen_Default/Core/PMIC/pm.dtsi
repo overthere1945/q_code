@@ -1,0 +1,13 @@
+#include "pm_defines.h"
+
+&sw {
+  pmic {
+    pm {
+      display {
+            compatible = "qcom,pm-display";
+            swire-map-index = /bits/ 8 <(0)>;
+      };
+    };
+  };
+};
+

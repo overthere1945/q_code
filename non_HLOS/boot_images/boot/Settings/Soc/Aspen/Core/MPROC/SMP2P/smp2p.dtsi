@@ -1,0 +1,60 @@
+/*------------------------------------------------------------------------------
+   mproc_smp2p device-tree source. 
+------------------------------------------------------------------------------*/
+/*!
+   This file contains SMP2P settings specific to SOC.
+*/
+
+/*------------------------------------------------------------------------------
+ Copyright (c) Qualcomm Technologies, Inc.
+ All Rights Reserved.
+ Confidential and Proprietary - Qualcomm Technologies, Inc.
+------------------------------------------------------------------------------*/
+
+#include "smem_host_type.h"
+#include "smp2p_defines.h"
+
+&sw{
+  smp2p {
+    compatible  = "qcom,smp2p";
+    fflags      = <SMP2P_FFLAGS_SSR_HANDSHAKE>;
+    max-entries = <0x10>;
+    smp2p-interrupts {
+      intr-01 {
+        dest = <SMEM_MODEM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <IPCC_C_MPSS>;
+        irq  = <SMP2P_IRQ>;
+      };
+      intr-02 {
+        dest = <SMEM_ADSP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <IPCC_C_LPASS>;
+        irq  = <SMP2P_IRQ>;
+      };
+      intr-03 {
+        dest = <SMEM_CDSP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <IPCC_C_CDSP>;
+        irq  = <SMP2P_IRQ>;
+      };
+      intr-04 {
+        dest = <SMEM_DCP SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <IPCC_C_DCP>;
+        irq  = <SMP2P_IRQ>;
+      };
+      intr-05 {
+        dest = <SMEM_AM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <IPCC_C_M55_AM>;
+        irq  = <SMP2P_IRQ>;
+      };
+      intr-06 {
+        dest = <SMEM_WM SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <IPCC_C_M55_WM>;
+        irq  = <SMP2P_IRQ>;
+      };
+      intr-07 {
+        dest = <SMEM_INVALID_HOST SMEM_PROC_NUM_DEFAULT SMEM_PD_DEFAULT CHIPLET_ID_DEFAULT>; 
+        proc = <SMP2P_NULL_CLIENT>;
+        irq  = <SMP2P_NULL_SIGNAL>;
+      };
+    };
+  };
+};

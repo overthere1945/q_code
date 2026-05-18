@@ -1,0 +1,192 @@
+/*------------------------------------------------------------------------------
+   mproc_smem device-tree source. 
+------------------------------------------------------------------------------*/
+/*!
+   This file contains SMEM partition settings 
+*/
+
+/*------------------------------------------------------------------------------
+ Copyright (c) Qualcomm Technologies, Inc.
+ All Rights Reserved.
+ Confidential and Proprietary - Qualcomm Technologies, Inc.
+------------------------------------------------------------------------------*/
+
+#include "smem_toc_defines.h"
+#include "smem_host_type.h"
+
+/*
+  Notes to SMEM maintainers:
+
+  Total SMEM carve size:
+  2MB <=> 0x200000
+
+  Partition size total:
+  0x181000
+
+  Remaining size (legacy+TOC+common):
+  0x7f000
+*/
+
+&sw {
+   	smem {
+        compatible = "qcom,smem";
+        smem-vers = <0x000c0000>;
+        smem-toc-vers = <0x00000001>;
+        smem-max-items = <0x2A8>;
+    smem-partitions {
+      part-01 {
+        /* SMEM_APPS - SMEM_ADSP - 0x60000 */
+        size             = <0x60000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_ADSP>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-02 {
+        /* SMEM_APPS - SMEM_NSP - 0x20000 */
+        size             = <0x20000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_NSP>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-03 {
+        /* SMEM_APPS - SMEM_MODEM - 0x7C000 */
+        size             = <0x7C000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_MODEM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-04 {
+        /* SMEM_TZ - SMEM_MODEM - 0x2000 */
+        size             = <0x2000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_TZ>;
+        host1            = <SMEM_MODEM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-05 {
+        /* SMEM_MODEM - SMEM_ADSP - 0x30000 */
+        size             = <0x30000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_MODEM>;
+        host1            = <SMEM_ADSP>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-06 {
+        /* SMEM_MODEM - SMEM_TME - 0x3000 */
+        size             = <0x3000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_MODEM>;
+        host1            = <SMEM_TME>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-07 {
+        /* SMEM_MODEM - SMEM_AM - 0x10000 */
+        size             = <0x10000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_MODEM>;
+        host1            = <SMEM_AM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-08 {
+        /* SMEM_MODEM - SMEM_WM - 0x10000 */
+        size             = <0x10000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_MODEM>;
+        host1            = <SMEM_WM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-09 {
+        /* SMEM_APPS - SMEM_AM - 0x10000 */
+        size             = <0x10000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_AM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-10 {
+        /* SMEM_APPS - SMEM_WM - 0x10000 */
+        size             = <0x10000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_WM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-11 {
+        /* SMEM_ADSP - SMEM_AM - 0x2000 */
+        size             = <0x2000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_ADSP>;
+        host1            = <SMEM_AM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-12 {
+        /* SMEM_ADSP - SMEM_WM - 0x2000 */
+        size             = <0x2000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_ADSP>;
+        host1            = <SMEM_WM>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-13 {
+        /* SMEM_APPS - SMEM_DCP - 0x4000 */
+        size             = <0x4000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_DCP>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-14 {
+        /* SMEM_TZ - SMEM_NSP - 0x2000 */
+        size             = <0x2000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_TZ>;
+        host1            = <SMEM_NSP>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-15 {
+        /* SMEM_TZ - SMEM_ADSP - 0x4000 */
+        size             = <0x4000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_TZ>;
+        host1            = <SMEM_ADSP>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-16 {
+        /* SMEM_APPS - SMEM_TME - 0x2000 */
+        size             = <0x2000>;
+        flags            = <SMEM_TOC_ENTRY_FLAGS_ENABLE_RW_PROTECTION>;
+        host0            = <SMEM_APPS>;
+        host1            = <SMEM_TME>;
+        size-cacheline   = <0x20>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+      part-17 {
+        /* Dummy entry for the code to detect end of dt entries */
+        size             = <0>;
+        flags            = <0>;
+        host0            = <SMEM_INVALID_HOST>;
+        host1            = <SMEM_INVALID_HOST>;
+        size-cacheline   = <0>;
+        exclusion-sizes  = <0 0 0 0>;
+      };
+    };
+  };
+};

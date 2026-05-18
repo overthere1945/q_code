@@ -1,0 +1,12 @@
+&soc {
+    ddr {
+      compatible = "qcom,ddr";
+      print_severity = <8210>;
+	    ddr_log_level = <0>;
+      ddr_trng_always_en = <0>;
+	    extnd_term_log_flag = <0>;
+	    ddr_tr_led_flag = <0>;
+      ddr_boot_freq = <3187200>;
+	  ddr_restrict = <0>;
+    };
+};

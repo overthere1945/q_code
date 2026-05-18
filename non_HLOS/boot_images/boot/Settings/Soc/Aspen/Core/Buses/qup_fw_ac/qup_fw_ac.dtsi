@@ -1,0 +1,49 @@
+/**
+
+  Copyright (c) Qualcomm Technologies, Inc.
+  All rights reserved.
+  Confidential and Proprietary - Qualcomm Technologies, Inc.
+ */
+
+/*=====================================================================================
+                              EDIT HISTORY
+ when       who         what, where, why
+ --------   --------    ---------------------------------------------------------------
+ 10/30/24   anupvish    Device tree representing the FW loading & AC configurations
+=====================================================================================*/
+
+#include "ac_fw_defines.h"
+
+&soc{
+    ac_fw{
+        compatible = "qcom,qupacfw-controller";
+        se_count = /bits/ 16 <NUM_SE_SUPPORTED>;
+        
+        ac_fw_config_0{     //QUP_1_SE8
+            se_base_addr        = <QUP3_1_SE8_BASE_ADDR>;
+            qup_common_base_addr    = <QUP3_1_COMMON_BASE_ADDR>;
+            qup_idx             = /bits/  8 <1>;
+            se_idx              = /bits/  8 <8>;
+            se_protocol         = /bits/  16 <SE_PROTOCOL_UART>;                                       
+            vmidmt_instance     = <HAL_VMIDMT_QUPV3_1>;                                        // Required for VMIDMT config
+            se_region_addr      = <QUP3_1_SE8_BASE_ADDR>;
+            se_region_size      = <QUP_SE_REGION_SIZE>;
+            ac_gpii_usecases    = /bits/  8 <1>;
+            se_clock            = "gcc_qupv3_wrap1_s8_clk";
+            se_vmid             = <AC_VM_NONE>;                                // Required in case of no active GPII usecase - SMMU
+            se_vmid_csid        = <AC_CSID_NONE>;                              // Need to use CSID instead of S2 VMID for VMIDMT configurations
+            se_sid_dma          = <AC_SID_NONE>;                               // Required if vmidmt needs to be configured incase of no GPII usecase
+            config_status       = "disabled";
+            ac_config{
+                ac_config_1{                                                   // AC config relevant to DCP
+                    acvmid              = <AC_VM_DCP_ELF>;                     // Required for SMMU config
+                    acvmid_csid         = <AC_CSID_DCP>;                       // Required for vmidmt config
+                    internal_sid        = /bits/ 16 <0x2A>;                    // 20 | gpii_index. from QUPAC_regions.csv file
+                    gpii_region_addr    = <QUP3_1_GPII10_ADDR>;
+                    gpii_region_size    = <QUP3_GPII_REGION_SIZE>;
+                };
+            };
+        };
+
+    };
+};

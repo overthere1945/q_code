@@ -1,0 +1,352 @@
+/**
+
+This is the settings file for AspenA Top Qup DTSI
+
+Copyright (c) Qualcomm Technologies, Inc.
+All Rights Reserved.
+Confidential and Proprietary - Qualcomm Technologies, Inc.
+*/
+/*
+===============================================================================
+ 
+                               Edit History
+ 
+$Header:
+ 
+when       who     what, where, why
+--------   ---     ------------------------------------------------------------
+01/17/25   AY        Initial revision
+ 
+*/
+/**
+- register addresses need to be manually added
+- interface_supported default is GSI_MODE
+*/
+
+#include "qup_defines.h"
+
+&soc {
+
+    /* QUPv3_1  wrapper  instance */
+    TOP_QUP_1{
+        compatible = "qcom,qup-controller";
+
+        qup_id                      = /bits/ 8 <(QUP_1)>;
+        core_base_addr              = <QUPV3_1_CORE_BASE_ADDRESS>;
+        common_base_addr            = <(QUPV3_1_CORE_COMMON_BASE_ADDRESS)>;
+        se_wrapper_base_addr        = <(QUPV3_1_CORE_SE_BASE_ADDRESS)>;
+        core_frequency              = <100000000>;
+        qup_flags                   = <(QUP_FLAGS_UNUSED)>;
+        num_se                      = /bits/ 8 <11>;
+        status                      = "okay";
+        /* qup1 SE0 Instance */
+        TOP_QUP_1_SE_0 {
+            core_offset                 = <0x00000000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <0>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s0_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se0_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se0_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se0_spi_active>;
+            pinctrl-3                   = <&top_qup1_se0_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se0_uart_active>;
+            pinctrl-5                   = <&top_qup1_se0_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE1 Instance */
+        TOP_QUP_1_SE_1 {
+            core_offset                 = <0x00004000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <1>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s1_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se1_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se1_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se1_spi_active>;
+            pinctrl-3                   = <&top_qup1_se1_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se1_uart_active>;
+            pinctrl-5                   = <&top_qup1_se1_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE2 Instance */
+        TOP_QUP_1_SE_2 {
+            core_offset                 = <0x00008000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <2>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s2_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se2_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se2_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se2_spi_active>;
+            pinctrl-3                   = <&top_qup1_se2_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se2_uart_active>;
+            pinctrl-5                   = <&top_qup1_se2_uart_sleep>;
+            status                      = "okay";
+        };
+        /* qup1 SE3 Instance */
+        TOP_QUP_1_SE_3 {
+            core_offset                 = <0x0000C000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <3>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s3_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se3_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se3_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se3_spi_active>;
+            pinctrl-3                   = <&top_qup1_se3_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se3_uart_active>;
+            pinctrl-5                   = <&top_qup1_se3_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE4 Instance */
+        TOP_QUP_1_SE_4 {
+            core_offset                 = <0x00010000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <4>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s4_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se4_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se4_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se4_spi_active>;
+            pinctrl-3                   = <&top_qup1_se4_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se4_uart_active>;
+            pinctrl-5                   = <&top_qup1_se4_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE5 Instance */
+        TOP_QUP_1_SE_5 {
+            core_offset                 = <0x00014000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <5>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s5_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se5_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se5_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se5_spi_active>;
+            pinctrl-3                   = <&top_qup1_se5_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se5_uart_active>;
+            pinctrl-5                   = <&top_qup1_se5_uart_sleep>;
+            status                      = "okay";
+        };
+        /* qup1 SE6 Instance */
+        TOP_QUP_1_SE_6 {
+            core_offset                 = <0x00018000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <6>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s6_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se6_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se6_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se6_spi_active>;
+            pinctrl-3                   = <&top_qup1_se6_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se6_uart_active>;
+            pinctrl-5                   = <&top_qup1_se6_uart_sleep>;
+            status                      = "okay";
+        };
+        /* qup1 SE7 Instance */
+        TOP_QUP_1_SE_7 {
+            core_offset                 = <0x0001C000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <7>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s7_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se7_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se7_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se7_spi_active>;
+            pinctrl-3                   = <&top_qup1_se7_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se7_uart_active>;
+            pinctrl-5                   = <&top_qup1_se7_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE8 Instance */
+        TOP_QUP_1_SE_8 {
+            core_offset                 = <0x00020000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <8>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s8_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se8_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se8_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se8_spi_active>;
+            pinctrl-3                   = <&top_qup1_se8_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se8_uart_active>;
+            pinctrl-5                   = <&top_qup1_se8_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE9 Instance */
+        TOP_QUP_1_SE_9 {
+            core_offset                 = <0x00024000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <9>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s9_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se9_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se9_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se9_spi_active>;
+            pinctrl-3                   = <&top_qup1_se9_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se9_uart_active>;
+            pinctrl-5                   = <&top_qup1_se9_uart_sleep>;
+            status                      = "disabled";
+        };
+        /* qup1 SE10 Instance */
+        TOP_QUP_1_SE_10 {
+            core_offset                 = <0x00028000>;
+            se_flags                    = <(USES_DDR_BUFFER | USES_INTERNAL_DDR_MEM | POLLED_MODE)>;
+            se_index                    = /bits/ 8 <10>;
+            FIFO_MODE                   = /bits/ 8 <1>;
+            protocol_supported          = /bits/ 8 <(I2C_SUPPORTED | SPI_SUPPORTED | UART_SUPPORTED)>;
+            interface_supported         = /bits/ 8 <(CORE_IRQ)>;
+            gpi_index                   = /bits/ 8 <0xFF>;
+            num_gpiis                   = /bits/ 8 <1>;
+            ring_size_multiplier        = /bits/ 8 <1>;
+            core_irq                    = /bits/ 16 <0>;
+            pdc_irq                     = /bits/ 16 <0>;
+            gpio_int_num                = /bits/ 16 <0>;
+            i2c_hub                     = /bits/ 8 <0>;
+            i2c_mm                      = /bits/ 8 <0>;
+            SE_EXCLUSIVE                = /bits/ 8 <1>; /* TO BE MANUALLY UPDATED */
+            se_clock                    = "gcc_qupv3_wrap1_s10_clk";
+
+            pinctrl-names               = "i2c-default", "i2c-sleep", "spi-default", "spi-sleep", "uart-default", "uart-sleep";
+            pinctrl-0                   = <&top_qup1_se10_i2c_active>;
+            pinctrl-1                   = <&top_qup1_se10_i2c_sleep>;
+            pinctrl-2                   = <&top_qup1_se10_spi_active>;
+            pinctrl-3                   = <&top_qup1_se10_spi_sleep>;
+            pinctrl-4                   = <&top_qup1_se10_uart_active>;
+            pinctrl-5                   = <&top_qup1_se10_uart_sleep>;
+            status                      = "disabled";
+        };
+    };
+
+};

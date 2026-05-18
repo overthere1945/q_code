@@ -1,0 +1,77 @@
+// SW: Core/Boot/boot.dtsi
+// core boot SW settings
+
+#include <boot_sw_defines.h>
+
+&sw {
+        boot {
+		      
+			  compatible = "qcom,boot";
+			  
+              /*        client trace  verbose */
+              config = <0x0000 0x0000 0x0000>;
+             
+              /* 0x0 = PCIe_Flashless (default), 0x1 = USB_Flashless */
+              force_dump_to_usb = <0x0>;
+
+              /* 0x0 = DISABLE (default), 0x1 = ENABLE default test_mode behavior, 0x2 = ENABLE one time test */
+              test_mode = <0x0>;
+              
+              /* DISABLE = 0x0, ENABLE = 0x1(default) */
+              xbl_sc_wdog = <ENABLE>;
+
+              /* DISABLE = 0x0, ENABLE = 0x1(default) */
+              xbl_ramdump_wdog = <DISABLE>;
+
+              /* Do not skip DDR init = 0x0(default), skip DDR init = 0x1 */
+              #ifdef DEVICE_PROGRAMMER_LITE
+              skip_ddr_init_in_EDL = <ENABLE>;
+              #else
+              skip_ddr_init_in_EDL = <DISABLE>;
+              #endif
+
+
+              /*        default action: vibration is enabled at start of XBL and disabled before exit */
+              /*        DISABLE = 0X0 - turn off vibration, ENABLE = 0x1 - turn on vibration */
+              vibration = <ENABLE>;
+              
+              /* save boot logs to storage for each boot in the boot log partition */
+              /* 0x0 = DISABLE (default), 0x1 = ENABLE Log buffer flush, 0x2 = ENABLE streaming logs */            
+              save_logs_to_media = <0x0>;
+
+              /* Order of the properties in this node must not be changed as it will break the feature */
+              forced_download{
+                               /*         Enable(default)/Disable User initiated EDL in XBL */
+                               feature = <ENABLE>;
+
+
+                               /*                 default set to checking dp low initially and then high withing configured timeout */
+                               /*                 valid values for this property are defined in boot_sw_defines.h */
+                               check_usb_option = <CHECK_USB_D_PLUS_HIGH_WITH_TIMEOUT>;
+
+
+                               /*                  Timeout in ms (maximum value is 10000 (10 seconds)) */
+                               /*                  *Effective only if checks_dp_high is enabled */
+                               check_dp_timeout = <10000>;
+
+                               /*                Option to ignore power key pressed with VOL+ and VOL- */
+                               /*                ENABLE: PWR key press will be ignored to enter EDL, DISABLE(default): PWR key press + VOL+/VOL- will not enter EDL*/
+                               ignore_pwr_key = <DISABLE>;
+                               /*                Option to ignore volume keys (VOL+ and VOL-) */
+                               /*                ENABLE: VOL+ and VOL- key press will be ignored to enter EDL, DISABLE(default): PWR key press + VOL+/VOL- will not enter EDL*/
+                               /*                Do not get considered when check_usb_option is set to CHECK_USB_D_PLUS_GROUND */
+                               ignore_vol_keys = <DISABLE>;
+                             };
+
+
+              /* Order of the properties in this node must not be changed as it will break the feature */
+              fedl_timeout{
+                           /*     Property version */
+                           ver = <BOOT_FEDL_TIMEOUT_PROP_VERSION>;
+
+                           /*        default action: hard reset */
+                           /*        valid values for this property are defined in boot_sw_defines.h */
+                           action = <BOOT_FEDL_TIMEOUT_ACTION_HARD_RESET>;
+                          };
+        };
+};

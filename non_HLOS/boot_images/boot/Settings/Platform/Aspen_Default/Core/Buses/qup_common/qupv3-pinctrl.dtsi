@@ -1,0 +1,100 @@
+#include "gpio-dt.h"
+ 
+ 
+ 
+//#define GPIO_CFG_BUSES(dir, pulltype, drivestrength, strongpull) (dir | pulltype | drivestrength | strongpull)
+ 
+/**
+ 
+ 
+------------------------ Below are the default MACROS for GPIO Configs ---------------------------------------------
+ 
+#define top_qup_spi_sleep_cfg             GPIO_CFG_BUSES(GPIO_INPUT,GPIO_KEEPER,GPIO_DRIVE_STRENGTH(200),0)
+ 
+#define top_qup_spi_active_miso_cfg       GPIO_CFG_BUSES(GPIO_INPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(600),0)
+#define top_qup_spi_active_mosi_cfg       GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(600),0)
+#define top_qup_spi_active_clk_cfg        GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(600),0)
+#define top_qup_spi_active_cs_cfg         GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(600),0)
+ 
+#define top_qup_uart_active_cts_cfg       GPIO_CFG_BUSES(GPIO_INPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(200),0)
+#define top_qup_uart_active_rts_cfg       GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(200),0)
+#define top_qup_uart_active_tx_cfg        GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(200),0)
+#define top_qup_uart_active_rx_cfg        GPIO_CFG_BUSES(GPIO_INPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(200),0)
+#define top_qup_uart_sleep_cfg            GPIO_CFG_BUSES(GPIO_INPUT,GPIO_PULL_DOWN,GPIO_DRIVE_STRENGTH(200),0)
+ 
+#define top_qup_i2c_active_sda_cfg        GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_PULL_UP,GPIO_DRIVE_STRENGTH(200),GPIO_STRONG_PULL)
+#define top_qup_i2c_active_scl_cfg        GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_PULL_UP,GPIO_DRIVE_STRENGTH(200),GPIO_STRONG_PULL)
+#define top_qup_i2c_sleep_cfg             GPIO_CFG_BUSES(GPIO_INPUT,GPIO_NO_PULL,GPIO_DRIVE_STRENGTH(200),GPIO_STRONG_PULL)
+ 
+ 
+#define top_qup_i3c_active_sda_cfg        GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_PULL_UP,GPIO_DRIVE_STRENGTH(200),0)
+#define top_qup_i3c_active_scl_cfg        GPIO_CFG_BUSES(GPIO_OUTPUT,GPIO_PULL_UP,GPIO_DRIVE_STRENGTH(200),0)
+#define top_qup_i3c_sleep_cfg             GPIO_CFG_BUSES(GPIO_INPUT,GPIO_KEEPER,GPIO_DRIVE_STRENGTH(200),0)
+ 
+<<<<<<<<<<  If you want to change configs of gpio , create new MACRO and update configs using GPIO_CFG Macro >>>>>>>>
+<<<<<<<<<<  for MACROS info check gpio-dt.h file >>>>>>>>
+ 
+---------------------------------------------------------------------------------------------------------------------
+ 
+**/
+ 
+/**
+ 
+------------------- Below is the example node for qup1_se0, you can add this node and property respectively as per requirement -------------------------------
+&tlmm{
+ 
+    //top_qup1_se0_pinctrl
+    top_qup1_se0_i2c_active: top_qup1_se0_i2c_active{
+        config = <&qup0_se0_l0 top_qup_i2c_active_sda_cfg>,
+                 <&qup0_se0_l1 top_qup_i2c_active_scl_cfg>;
+    };
+
+    top_qup1_se0_i2c_sleep: top_qup1_se0_i2c_sleep{
+        config = <&qup0_se0_l0 top_qup_i2c_sleep_cfg>,
+                 <&qup0_se0_l1 top_qup_i2c_sleep_cfg>;
+    };
+
+    top_qup1_se0_spi_active: top_qup1_se0_spi_active{
+        config = <&qup0_se0_l0 top_qup_spi_active_miso_cfg>,
+                 <&qup0_se0_l1 top_qup_spi_active_mosi_cfg>,
+                 <&qup0_se0_l2 top_qup_spi_active_clk_cfg>,
+                 <&qup0_se0_l3 top_qup_spi_active_cs_cfg>;
+    };
+
+    top_qup1_se0_spi_sleep: top_qup1_se0_spi_sleep{
+        config = <&qup0_se0_l0 top_qup_spi_sleep_cfg>,
+                 <&qup0_se0_l1 top_qup_spi_sleep_cfg>,
+                 <&qup0_se0_l2 top_qup_spi_sleep_cfg>,
+                 <&qup0_se0_l3 top_qup_spi_sleep_cfg>;
+    };
+
+    top_qup1_se0_uart_active: top_qup1_se0_uart_active{
+        config = <&qup0_se0_l0 top_qup_uart_active_cts_cfg>,
+                 <&qup0_se0_l1 top_qup_uart_active_rts_cfg>,
+                 <&qup0_se0_l2 top_qup_uart_active_tx_cfg>,
+                 <&qup0_se0_l3 top_qup_uart_active_rx_cfg>;
+    };
+
+    top_qup1_se0_uart_sleep: top_qup1_se0_uart_sleep{
+        config = <&qup0_se0_l0 top_qup_uart_sleep_cfg>,
+                 <&qup0_se0_l1 top_qup_uart_sleep_cfg>,
+                 <&qup0_se0_l2 top_qup_uart_sleep_cfg>,
+                 <&qup0_se0_l3 top_qup_uart_sleep_cfg>;
+    };
+ 
+};
+ 
+ 
+top_qupK_seM_<pinctrl_name>: (Ex: top_qup0_se0_i2c_active)
+
+K - Qup Id
+M - Serial Engine Id
+ 
+ 
+------------------------------------------------------------------------------------------------------------------------------------
+ 
+**/
+ 
+&tlmm
+{
+};
