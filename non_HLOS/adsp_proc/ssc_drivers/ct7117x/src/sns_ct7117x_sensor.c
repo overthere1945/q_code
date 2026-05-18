@@ -16,7 +16,7 @@
 #include "sns_sensor_util.h"
 #include "sns_types.h"
 #include "sns_attribute_util.h"
-#include "sns_gpio_service.h"
+#include "sns_gpio_service.h"	 /* add 2025.03.10 byoungchang.cho@lge.com	*/
 
 #include "sns_ct7117x_sensor.h"
 
@@ -546,12 +546,12 @@ static void ct7117x_sensor_process_registry_event(sns_sensor *const this,
         {
           state->registry_pf_cfg_received = true;
 
-          state->com_port_info.com_config.bus_type = SNS_BUS_SPI;// state->registry_pf_cfg.bus_type;
-          state->com_port_info.com_config.bus_instance = 5;//state->registry_pf_cfg.bus_instance;
-          state->com_port_info.com_config.slave_control = 0;//state->registry_pf_cfg.slave_config;
-          state->com_port_info.com_config.min_bus_speed_KHz = 15000;//state->registry_pf_cfg.min_bus_speed_khz;
-          state->com_port_info.com_config.max_bus_speed_KHz = 15000;//state->registry_pf_cfg.max_bus_speed_khz;
-          state->com_port_info.com_config.reg_addr_type = 0x0;//state->registry_pf_cfg.reg_addr_type;
+          state->com_port_info.com_config.bus_type = SNS_BUS_SPI;			// state->registry_pf_cfg.bus_type;
+          state->com_port_info.com_config.bus_instance = 5;					//state->registry_pf_cfg.bus_instance;
+          state->com_port_info.com_config.slave_control = 0;				//state->registry_pf_cfg.slave_config;
+          state->com_port_info.com_config.min_bus_speed_KHz = 15000;		// change 2026.05.04 byoungchang.cho@lge.com	//state->registry_pf_cfg.min_bus_speed_khz;
+          state->com_port_info.com_config.max_bus_speed_KHz = 15000;		// change 2026.05.04 byoungchang.cho@lge.com	//state->registry_pf_cfg.max_bus_speed_khz;
+          state->com_port_info.com_config.reg_addr_type = 0x0;				//state->registry_pf_cfg.reg_addr_type;
  
           state->rail_config.num_of_rails = state->registry_pf_cfg.num_rail;
           state->registry_rail_on_state = state->registry_pf_cfg.rail_on_state;
@@ -700,8 +700,8 @@ static bool ct7117x_discover_hw(sns_sensor * const this)
         SNS_PRINTF(LOW, this, "RC_SUCCESS");
     }
 
-    ct7117x_get_calib_param(this);
-    hw_is_present = true;
+    ct7117x_get_calib_param(this);			/* add 2026.05.04 byoungchang.cho@lge.com	*/
+    hw_is_present = true;					/* add 2026.05.04 byoungchang.cho@lge.com	*/
 
     state->who_am_i = buffer[0];
     /**------------------Power Down and Close COM Port--------------------*/
@@ -750,9 +750,9 @@ sns_rc ct7117x_sensor_notify_event(sns_sensor * const this)
      || (0 == sns_memcmp(&state->timer_suid,
                               &((sns_sensor_uid){{0}}),
                               sizeof(state->timer_suid)))
-     || (0 == sns_memcmp(&state->irq_suid,
-                              &((sns_sensor_uid){{0}}),
-                              sizeof(state->irq_suid)))
+     || (0 == sns_memcmp(&state->irq_suid,					// add 2026.05.04 byoungchang.cho@lge.com
+                              &((sns_sensor_uid){{0}}),		// add 2026.05.04 byoungchang.cho@lge.com
+                              sizeof(state->irq_suid)))		// add 2026.05.04 byoungchang.cho@lge.com
 #if !CT7117X_DISABLE_REGISTRY
      || (0 == sns_memcmp(&state->reg_suid,
                               &((sns_sensor_uid){{0}}),
@@ -822,6 +822,7 @@ sns_rc ct7117x_sensor_notify_event(sns_sensor * const this)
                    instance = this->cb->create_instance(this, sizeof(ct7117x_instance_state));
                    SNS_PRINTF(HIGH, this, "change-20260204-hyungchul: Auto-created instance to force start");
                }
+			   /* end-20260204-hyungchul	*/
             }
             else
             {
@@ -1046,7 +1047,7 @@ static bool ct7117x_extract_self_test_info(sns_sensor *this,
  *
  * @return none
  */
-#if 0
+#if 0		/* add 2025.03.10 byoungchang.cho@lge.com	*/
 static void ct7117x_turn_rails_off(sns_sensor *this)
 {
   sns_sensor *sensor;
@@ -1066,7 +1067,7 @@ static void ct7117x_turn_rails_off(sns_sensor *this)
     }
   }
 }
-#endif
+#endif		/* add 2025.03.10 byoungchang.cho@lge.com	*/
 
 #if 0
 static void ct7117x_cancel_power_rail_timer(sns_sensor *const this)
@@ -1147,6 +1148,7 @@ static void ct7117x_check_instance(sns_sensor *const this)
     // sns_sensor_util_remove_sensor_stream(this, &state->timer_stream);
     // this->cb->remove_instance(instance);
     // ct7117x_turn_rails_off(this);
+	/* end-20260204-hyungchul */
     SNS_PRINTF(HIGH, this, "change-20260204-hyungchul: Kept instance alive (ignored clientless removal)");
   }
 }
@@ -1299,10 +1301,12 @@ sns_sensor_instance *ct7117x_sensor_set_client_request(sns_sensor *const this,
         if(ct7117x_extract_self_test_info(this, instance, new_request))
           {
             inst_state->new_self_test_request = true;
+			/* add start 2025.03.10 byoungchang.cho@lge.com	*/
             sns_memscpy(&inst_state->irq_suid, sizeof(inst_state->irq_suid),
                         &state->irq_suid, sizeof(state->irq_suid));
             SNS_PRINTF(HIGH, this, "Self-test: Copying IRQ SUID. Valid? %d", 
                        (0 != sns_memcmp(&state->irq_suid, &((sns_sensor_uid){{0}}), sizeof(state->irq_suid))));
+			/* end 2025.03.10 byoungchang.cho@lge.com	*/
             ct7117x_set_self_test_inst_config(this, instance);
           }
           request_supported = true;
@@ -1595,13 +1599,16 @@ sns_rc ct7117x_temperature_init(sns_sensor * const this)
 {
   ct7117x_state *state = (ct7117x_state*) this->state->state;
   struct sns_service_manager *smgr = this->cb->get_service_manager(this);
-  sns_gpio_service *gpio_service;
+  
+  /* add start 2025.05.04 byoungchang.cho@lge.com	*/
+  sns_gpio_service *gpio_service;	
 
   // [FIX] Initialize registry config structures to prevent garbage values (e.g. num_of_rails = 248)
   sns_memset(&state->registry_cfg, 0, sizeof(state->registry_cfg));
   sns_memset(&state->registry_pf_cfg, 0, sizeof(state->registry_pf_cfg));
   sns_memset(&state->rail_config, 0, sizeof(state->rail_config));
-
+  /* end 2025.05.04 byoungchang.cho@lge.com	*/
+  
   state->diag_service =
       (sns_diag_service *) smgr->get_service(smgr, SNS_DIAG_SERVICE);
 
@@ -1610,6 +1617,7 @@ sns_rc ct7117x_temperature_init(sns_sensor * const this)
   state->sensor = TEMP_TEMPERATURE;
   state->sensor_client_present = false;
 
+  /* add start 2025.03.10 byoungchang.cho@lge.com	*/
   gpio_service = (sns_gpio_service *)smgr->get_service(smgr, SNS_GPIO_SERVICE);
   if (NULL != gpio_service && NULL != gpio_service->api)
   {
@@ -1625,6 +1633,7 @@ sns_rc ct7117x_temperature_init(sns_sensor * const this)
     gpio_service->api->write_gpio(15, true, SNS_GPIO_DRIVE_STRENGTH_2_MILLI_AMP, SNS_GPIO_PULL_TYPE_NO_PULL, SNS_GPIO_STATE_HIGH);
     SNS_PRINTF(HIGH, this, "Set GPIO 15 to HIGH");
   }
+  /* end 2025.03.10 byoungchang.cho@lge.com	*/
 
   sns_sensor_uid suid = (sns_sensor_uid) TEMPERATURE_SUID_0;
 #ifdef CT7117X_ENABLE_DUAL_SENSOR
@@ -1643,7 +1652,7 @@ sns_rc ct7117x_temperature_init(sns_sensor * const this)
   temp_publish_attributes(this);
   sns_see_temp_send_suid_req(this, "async_com_port", 15);
   sns_see_temp_send_suid_req(this, "timer", 6);
-  sns_see_temp_send_suid_req(this, "interrupt", 9);
+  sns_see_temp_send_suid_req(this, "interrupt", 9);			/* add 2025.05.04 byoungchang.cho@lge.com	*/
 #if !CT7117X_DISABLE_REGISTRY
   sns_see_temp_send_suid_req(this, "registry", 9);
 #endif

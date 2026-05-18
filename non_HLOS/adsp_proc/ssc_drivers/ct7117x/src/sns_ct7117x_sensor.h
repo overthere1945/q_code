@@ -62,7 +62,7 @@ extern sns_sensor_api ct7117x_temperature_sensor_api;
 #define TEMP_ODR_5                 (5.0f)
 #define TEMP_ODR_10                (10.0f)
 #define TEMP_ODR_25                (25.0f)
-#define SUID_NUM 4
+#define SUID_NUM 4								// change 2026.05.04 byoungchang.cho@lge.com
 /*op mode*/
 #define TEMP_LPM              "LPM"
 #define TEMP_HIGH_PERF        "HIGH_PERF"

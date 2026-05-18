@@ -132,8 +132,8 @@ typedef struct ct7117x_instance_state
   sns_time                       interrupt_timestamp;
   /** Data streams from dependentcies. */
   sns_sensor_uid                 timer_suid;
-  sns_sensor_uid                 irq_suid;
-  uint32_t                       irq_num;
+  sns_sensor_uid                 irq_suid;			/* add 2026.05.04 byoungchang.cho@lge.com	*/
+  uint32_t                       irq_num;			/* add 2026.05.04 byoungchang.cho@lge.com	*/
   sns_data_stream                *temperature_timer_data_stream;
   sns_data_stream                *interrupt_data_stream;
   sns_data_stream                *async_com_port_data_stream;  /* data streaming channel */
@@ -162,7 +162,7 @@ typedef struct ct7117x_instance_state
       bool save_write_time);
   bool  instance_is_ready_to_configure;
   uint8_t              enabled_sensors;
-  bool                 is_dri;
+  bool                 is_dri;				/* add 2026.05.04 byoungchang.cho@lge.com	*/
   bool new_self_test_request;
   struct ct7117x_calib_param_t calib_param;/**<calibration data*/  
   u8 oversamp_temperature;/**< temperature over sampling*/
@@ -177,7 +177,7 @@ typedef struct sns_temp_cfg_req {
   ct7117x_power_mode      op_mode;
 } sns_temp_cfg_req;
 
-void ct7117x_handle_interrupt_event(sns_sensor_instance *const instance, sns_time timestamp);
+void ct7117x_handle_interrupt_event(sns_sensor_instance *const instance, sns_time timestamp);	/* add 2026.05.04 byoungchang.cho@lge.com	*/
 sns_rc ct7117x_temp_inst_init(sns_sensor_instance *const this,
     sns_sensor_state const *sstate);
 sns_rc ct7117x_temp_inst_deinit(sns_sensor_instance *const this);

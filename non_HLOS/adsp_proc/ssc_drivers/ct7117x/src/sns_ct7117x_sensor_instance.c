@@ -17,9 +17,9 @@
 #include "sns_sensor_event.h"
 #include "sns_types.h"
 #include "sns_event_service.h"
-#include "sns_memmgr.h"
-#include "sns_com_port_priv.h"
-#include "sns_gpio_service.h"
+#include "sns_memmgr.h"						/* add 2026.05.04 byoungchang.cho@lge.com	*/
+#include "sns_com_port_priv.h"				/* add 2026.05.04 byoungchang.cho@lge.com	*/
+#include "sns_gpio_service.h"				// add 2026.04.20 byoungchang.cho@lge.com
 
 #include "sns_ct7117x_hal.h"
 #include "sns_ct7117x_sensor.h"
@@ -37,16 +37,18 @@
 #include "sns_diag.pb.h"
 #include "sns_sensor_util.h"
 #include "sns_sync_com_port_service.h"
+/* add start 2026.05.04 byoungchang.cho@lge.com	*/
 #include "sns_island.h"
 #include <qurt.h>
 #include <stdio.h>
 #define SHARED_PHYS_ADDR  0x81EC0000
 #define SHARED_SIZE       0x20000
-//#define SHARED_PHYS_ADDR  0x81EE0000
-//#define SHARED_SIZE       0x10000
-//#define LATENCY_MEASURE
+//#define SHARED_PHYS_ADDR  0x81EE0000	// add 2026.04.20 byoungchang.cho@lge.com
+//#define SHARED_SIZE       0x10000		// add 2026.04.20 byoungchang.cho@lge.com
+//#define LATENCY_MEASURE				// add 2026.04.20 byoungchang.cho@lge.com
 unsigned int myddr_base_addr = 0;
 void *psram_virtual_addr = NULL;
+/* end 2026.05.04 byoungchang.cho@lge.com	*/
 /*==============================================================================
   Function Definitions
   ============================================================================*/
@@ -99,6 +101,9 @@ void ct7117x_start_sensor_temp_polling_timer(sns_sensor_instance *this)
 /*
 *	set temperature polling config
 */
+/* add 2026.05.04 byoungchang.cho@lge.com	
+   Renamed ct7117x_set_temperature_polling_config to ct7117x_set_temperature_config.
+*/
 void ct7117x_set_temperature_config(sns_sensor_instance *const this)
 {
   ct7117x_instance_state *state = (ct7117x_instance_state*)this->state->state;
@@ -106,10 +111,11 @@ void ct7117x_set_temperature_config(sns_sensor_instance *const this)
   SNS_INST_PRINTF(LOW, this,
   "temperature_info.timer_is_active:%d state->temperature_info.sampling_intvl:%u is_dri:%d",
   state->temperature_info.timer_is_active,
-  state->temperature_info.sampling_intvl, state->is_dri);
+  state->temperature_info.sampling_intvl, state->is_dri);	/* add 2026.05.04 byoungchang.cho@lge.com	*/
 
   if(state->temperature_info.sampling_intvl > 0)
-  {
+  {	  
+	  /* add & change start 2026.05.04 byoungchang.cho@lge.com	*/
       if (state->is_dri)
       {
 
@@ -122,7 +128,7 @@ void ct7117x_set_temperature_config(sns_sensor_instance *const this)
 
         ct7117x_set_power_mode(state, TEMP_FORCED_MODE);
         ct7117x_start_sensor_temp_polling_timer(this);
-      }
+      }	  
   }
   else
   {
@@ -138,6 +144,7 @@ void ct7117x_set_temperature_config(sns_sensor_instance *const this)
     ct7117x_set_power_mode(state,TEMP_SLEEP_MODE);
     SNS_INST_PRINTF(LOW, this, "Set Power Mode: SLEEP");
   }
+  /* end 2026.05.04 byoungchang.cho@lge.com	*/
 }
 
 /*
@@ -162,7 +169,7 @@ void ct7117x_reconfig_hw(sns_sensor_instance *this,
   // Enable timer in case of sensor pressure clients
   if (sensor_type == TEMP_TEMPERATURE)
   {
-    ct7117x_set_temperature_config(this);
+    ct7117x_set_temperature_config(this);	/* change 2026.05.04 byoungchang.cho@lge.com	*/
   }
   /* done with reconfig */
   state->config_step = TEMP_CONFIG_IDLE; 
@@ -229,7 +236,7 @@ void ct7117x_run_self_test(sns_sensor_instance *instance)
     state->temperature_info.test_info.test_client_present = false;
   }
 }
-
+/* add & change start 2026.05.04 byoungchang.cho@lge.com	*/
 void ct7117x_handle_interrupt_event(sns_sensor_instance *const instance, sns_time timestamp)
 {
   ct7117x_instance_state *state = (ct7117x_instance_state*)instance->state->state;
@@ -313,6 +320,7 @@ void ct7117x_handle_interrupt_event(sns_sensor_instance *const instance, sns_tim
       }
       total_read_bytes += xfer_bytes;
     }
+
     qurt_mem_barrier();
 
     SNS_INST_PRINTF(HIGH, instance, "Total image bytes read: %u", total_read_bytes);
@@ -340,6 +348,8 @@ void ct7117x_handle_interrupt_event(sns_sensor_instance *const instance, sns_tim
                    (uint32_t)sns_convert_ticks_to_usec(t_w_e - t_w_s), (uint32_t)sns_convert_ticks_to_usec(sns_get_system_time() - t_start));
 #endif	//LATENCY_MEASURE
 }
+/* end 2026.05.04 byoungchang.cho@lge.com	*/
+
 
 /*
 *	op_mode,physical sensor config 
@@ -440,12 +450,14 @@ static void inst_cleanup(ct7117x_instance_state *state, sns_stream_service *stre
     stream_mgr->api->remove_stream(stream_mgr, state->temperature_timer_data_stream);
     state->temperature_timer_data_stream = NULL;
   }
+/* add start 2026.05.04 byoungchang.cho@lge.com	*/
 
   if(NULL != state->interrupt_data_stream)
   {
     stream_mgr->api->remove_stream(stream_mgr, state->interrupt_data_stream);
     state->interrupt_data_stream = NULL;
   }
+/* end 2026.05.04 byoungchang.cho@lge.com	*/
 
   if(NULL != state->scp_service)
   {
@@ -470,6 +482,7 @@ sns_rc ct7117x_temp_inst_init(sns_sensor_instance * const this,
   sns_stream_service *stream_mgr = (sns_stream_service*)
               service_mgr->get_service(service_mgr, SNS_STREAM_SERVICE);
 
+// add start 2026.04.20 byoungchang.cho@lge.com
   // Shared memory region initialization
   if (myddr_base_addr == 0)
   {
@@ -497,6 +510,7 @@ sns_rc ct7117x_temp_inst_init(sns_sensor_instance * const this,
         SNS_INST_PRINTF(ERROR, this, "Failed to create shared memory region.");
     }
   }
+// end 2026.04.20 byoungchang.cho@lge.com
 
   uint64_t buffer[10];
   pb_ostream_t stream = pb_ostream_from_buffer((pb_byte_t *)buffer, sizeof(buffer));
@@ -543,11 +557,13 @@ sns_rc ct7117x_temp_inst_init(sns_sensor_instance * const this,
               sizeof(state->timer_suid),
               &sensor_state->timer_suid,
               sizeof(sensor_state->timer_suid));
+/* add start 2026.05.04 byoungchang.cho@lge.com	*/			  
   sns_memscpy(&state->irq_suid,
               sizeof(state->irq_suid),
               &sensor_state->irq_suid,
               sizeof(sensor_state->irq_suid));
   state->irq_num = 102;
+/* end 2026.05.04 byoungchang.cho@lge.com	*/
 
   /** Copy calibration data*/
   sns_memscpy(&state->calib_param,
@@ -557,7 +573,6 @@ sns_rc ct7117x_temp_inst_init(sns_sensor_instance * const this,
   state->interface = sensor_state->com_port_info.com_config.bus_instance;
   
   /* change-20260204-hyungchul: Force DRI enabled in init for auto-start */
-
   state->is_dri = true;
   
   state->op_mode = FORCED_MODE;
@@ -626,7 +641,6 @@ sns_rc ct7117x_temp_inst_init(sns_sensor_instance * const this,
   }
 
   /* change-20260204-hyungchul: Register Interrupt immediately during init */
-
   if (state->is_dri)
   {
 
@@ -661,14 +675,15 @@ sns_rc ct7117x_temp_inst_init(sns_sensor_instance * const this,
       }
     }
   }
+  /* end-20260204-hyungchul: Register Interrupt immediately during init */
 
   /* change-20260204-hyungchul: Force default ODR and activate sensor in init */
-
   state->temperature_info.sampling_rate_hz = TEMP_ODR_5;
   state->temperature_info.sampling_intvl = sns_convert_ns_to_ticks(1000000000.0 / state->temperature_info.sampling_rate_hz);
   
   ct7117x_set_temperature_config(this);
   SNS_INST_PRINTF(HIGH, this, "change-20260204-hyungchul: Auto-started sensor with ODR 5Hz");
+  /* end-20260204-hyungchul: Force default ODR and activate sensor in init */
 
   SNS_INST_PRINTF(LOW, this, "<sns_see_if__ init> success");
   return SNS_RC_SUCCESS;
@@ -791,6 +806,7 @@ sns_rc ct7117x_temp_inst_set_client_config(
   else if (client_request->message_id ==
           SNS_PHYSICAL_SENSOR_TEST_MSGID_SNS_PHYSICAL_SENSOR_TEST_CONFIG) 
   {
+	/* add & change start 20260504 byoungchang.cho@lge.com */
     // ct7117x_run_self_test(this); // Original COM test.
 
     bool is_irq_suid_valid = (0 != sns_memcmp(&state->irq_suid, &((sns_sensor_uid){{0}}), sizeof(state->irq_suid)));
@@ -830,6 +846,8 @@ sns_rc ct7117x_temp_inst_set_client_config(
     }
     state->new_self_test_request = false;
   }
+  /* end 20260504 byoungchang.cho@lge.com */
+  
   // Turn COM port OFF
   state->scp_service->api->sns_scp_update_bus_power(
       state->com_port_info.port_handle, false);

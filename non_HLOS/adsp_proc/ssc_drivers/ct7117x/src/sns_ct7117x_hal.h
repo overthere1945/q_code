@@ -243,7 +243,7 @@ void ct7117x_convert_and_send_temp_sample(
 sns_rc ct7117x_read_cal_params(sns_sync_com_port_service *scp_service,
   sns_sync_com_port_handle *port_handle,
   uint8_t *buffer);
-void ct7117x_set_temperature_config(sns_sensor_instance *const this);
+void ct7117x_set_temperature_config(sns_sensor_instance *const this);		// change 2026.05.04 byoungchang.cho@lge.com
 void ct7117x_set_pressure_polling_config(sns_sensor_instance *const this);
 /**
    * Executes requested self-tests.

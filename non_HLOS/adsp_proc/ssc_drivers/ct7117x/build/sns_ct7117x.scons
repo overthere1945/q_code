@@ -54,4 +54,4 @@ if 'USES_SSC_STATIC_LIB_BUILDER' in env:
                pb_apis            = pb_api,
                core_public_api    = cbsp_api,
                qsh_api            = ['QSH_INCLUDES'],
-               segment            = 'qshtech')
+               segment            = 'qshtech')			# change 2026.05.04 hoyoun.lee@lge.com

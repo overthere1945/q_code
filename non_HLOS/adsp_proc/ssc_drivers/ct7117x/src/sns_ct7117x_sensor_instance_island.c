@@ -16,9 +16,9 @@
 #include "sns_time.h"
 #include "sns_sensor_event.h"
 #include "sns_types.h"
-#include "qurt.h"
-#include "sns_island_util.h"
-#include "sns_island.h"
+#include "qurt.h"				// add 2026.03.18 byoungchang.cho@lge.com
+#include "sns_island_util.h"	// add 2026.03.18 byoungchang.cho@lge.com
+#include "sns_island.h"			// add 2026.03.18 byoungchang.cho@lge.com
 
 #include "sns_ct7117x_hal.h"
 #include "sns_ct7117x_sensor.h"
@@ -45,9 +45,11 @@
 */
 static sns_rc ct7117x_temp_inst_notify_event(sns_sensor_instance * const this)
 {
+  /* add & change 20260504 byoungchang.cho@lge.com */
   //unsigned int island_status = qurt_island_get_status();
   // Island mode debug
   //SNS_INST_PRINTF(HIGH, this, "[cbc] notify_event: Island Status: %d", island_status);
+  /* end 20260504 byoungchang.cho@lge.com */
 
   ct7117x_instance_state *state = (ct7117x_instance_state*) this->state->state;
   sns_sensor_event *event;
@@ -79,6 +81,7 @@ static sns_rc ct7117x_temp_inst_notify_event(sns_sensor_instance * const this)
     }
   }
 
+  /* add & change 20260504 byoungchang.cho@lge.com */
   if (state->interrupt_data_stream != NULL)
   {
     event = state->interrupt_data_stream->api->peek_input(state->interrupt_data_stream);
@@ -90,14 +93,15 @@ static sns_rc ct7117x_temp_inst_notify_event(sns_sensor_instance * const this)
         pb_istream_t stream = pb_istream_from_buffer((pb_byte_t*)event->event, event->event_len);
         if (pb_decode(&stream, sns_interrupt_event_fields, &irq_event))
         {
-          sns_island_exit_internal();
+          sns_island_exit_internal();		// add 2026.03.18 byoungchang.cho@lge.com
           ct7117x_handle_interrupt_event(this, irq_event.timestamp);
         }
       }
       event = state->interrupt_data_stream->api->get_next_input(state->interrupt_data_stream);
     }
   }
-
+  /* end 20260504 byoungchang.cho@lge.com */
+  
   // Turn COM port OFF
   state->scp_service->api->sns_scp_update_bus_power(
       state->com_port_info.port_handle, false);
