@@ -1,0 +1,20 @@
+#---------------------------------------------------------------------------
+# Copyright (c) Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Confidential and Proprietary - Qualcomm Technologies, Inc.
+#---------------------------------------------------------------------------
+
+# LIBSTD configuration options
+
+menu "QC LIBSTD"
+
+config QC_LIBSTD
+	bool
+	default y
+	prompt ""
+	help
+	  Enables standard library definitions for string functions, safe memory copy or set operations etc.
+	  Applications with their in-built string and memory operations library can disable this configuraiton. 
+	  By default it will be enabled for all applications.
+
+endmenu

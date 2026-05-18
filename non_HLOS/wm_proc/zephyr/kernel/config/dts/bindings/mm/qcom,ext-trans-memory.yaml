@@ -1,0 +1,22 @@
+# Copyright (c) Qualcomm Technologies, Inc.
+# 3rd party file marking retained below for attribution purposes:
+# SPDX-License-Identifier: (BSD-2-Clause)
+%YAML 1.2
+---
+
+description: |
+   A memory block whose address is translated externally.
+   
+compatible: qcom,ext-trans-memory
+
+properties:
+# A dictionary of DT properties for this binding schema
+
+  reg:
+    type: array
+    required: true
+
+  external-address:
+    description: The external address for this translated memory.
+    type: int
+    required: true

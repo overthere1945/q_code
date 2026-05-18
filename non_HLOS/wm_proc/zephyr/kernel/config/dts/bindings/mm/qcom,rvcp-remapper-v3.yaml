@@ -1,0 +1,13 @@
+# Copyright (c) Qualcomm Technologies, Inc.
+# 3rd party file marking retained below for attribution purposes:
+# SPDX-License-Identifier: (BSD-2-Clause)
+%YAML 1.2
+---
+
+description: |
+   A hardware memory remapper in the RVCPv3.
+   
+compatible: qcom,rvcp-remapper-v3
+
+include: ["qcom,rvcp-remapper.yaml"]
+

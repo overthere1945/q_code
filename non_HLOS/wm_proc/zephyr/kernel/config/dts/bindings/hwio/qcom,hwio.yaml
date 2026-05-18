@@ -1,0 +1,17 @@
+description: qualcomm hwio
+
+compatible: "qcom,hwio"
+
+include: [base.yaml]
+
+properties:
+
+    domain_name:
+      type: string
+      required: true
+
+    reg:
+      required: false
+
+    reg-names:
+      required: false

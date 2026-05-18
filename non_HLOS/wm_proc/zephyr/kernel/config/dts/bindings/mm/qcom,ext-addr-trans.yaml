@@ -1,0 +1,11 @@
+# Copyright (c) Qualcomm Technologies, Inc.
+# 3rd party file marking retained below for attribution purposes:
+# SPDX-License-Identifier: (BSD-2-Clause)
+%YAML 1.2
+---
+
+description: |
+   External address translations.
+
+compatible: qcom,ext-addr-trans
+

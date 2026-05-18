@@ -1,0 +1,28 @@
+# ------------------------------------------------------------------------------
+#  Copyright (c) Qualcomm Technologies, Inc.
+#  All rights reserved.
+#  Confidential and Proprietary - Qualcomm Technologies, Inc.
+# ------------------------------------------------------------------------------
+
+menu "Qualcomm Memory Management drivers"
+
+config QC_MM_EAT
+    bool "Qualcomm memory management EAT (external address translation) module"
+    depends on EXTERNAL_ADDRESS_TRANSLATION
+    help
+      Enables external address translation support for mapping between local
+      and external physical memory regions.
+
+config QC_MM_EAT_MAX_REGIONS
+    int "Maximum number of dynamic external address translation regions"
+    depends on QC_MM_EAT
+    default 0 if !DT_HAS_QCOM_RVCP_REMAPPER_ENABLED && !DT_HAS_QCOM_RVCP_REMAPPER_V3_ENABLED
+    default 8 if DT_HAS_QCOM_RVCP_REMAPPER_ENABLED && !DT_HAS_QCOM_RVCP_REMAPPER_V3_ENABLED
+    default 24 if DT_HAS_QCOM_RVCP_REMAPPER_V3_ENABLED
+    help
+      Sets the maximum number of dynamic external address translation regions for
+      the Qualcomm memory management EAT module.
+
+endmenu
+
+
